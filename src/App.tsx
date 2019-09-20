@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { SmallScatterPlot } from './Plots/smallScatterPlot'
+import { InitialVariablePlot } from './Plots/InitialVariablePlot'
 import { housingData } from './data'
 
 import './App.css'
@@ -8,7 +9,19 @@ import './App.css'
 const App: React.FC = () => {
   return (
     <div className="App">
-      <div className="first-graphic">
+      <RenderSmallPlots />
+      <InitialVariablePlot
+        data={housingData}
+        transitionHeights={[400, 800, 1200]}
+        height={Math.max(document.body.getBoundingClientRect().height, 1000)}
+        />
+    </div>
+  );
+}
+
+const RenderSmallPlots: React.FC = () => {
+  return (
+    <div className="first-graphic">
         <SmallScatterPlot class={'first-graphic-row-1'} data={housingData} yDataKey={"price"} xDataKey={"year_built"} />
         <SmallScatterPlot data={housingData} yDataKey={"price"} xDataKey={"sqft"} />
         <SmallScatterPlot data={housingData} yDataKey={"price"} xDataKey={"beds"} />
@@ -36,8 +49,7 @@ const App: React.FC = () => {
       
         <SmallScatterPlot class={'first-graphic-row-6'} data={housingData} yDataKey={"bath"} xDataKey={"price_per_sqft"} />
       </div>
-    </div>
-  );
+  )
 }
 
 export default App;
