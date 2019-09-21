@@ -14,18 +14,30 @@ interface InitialVariablePlotProps {
 
 export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: InitialVariablePlotProps) => {
 
-  const [transitionPhase, setTransitionPhase] = useState()
+  const phaseColors = ['red', 'blue', 'green', 'purple']
+
+  const [transitionPhase, setTransitionPhase] =
+    useState<{phaseIndex: number, phasePercentage: number}>({ phaseIndex: 0, phasePercentage: 0})
 
   useScrollPosition(
     ({ currPos }) => {
-      const calculatedPhase = props.transitionHeights.findIndex((transitionHeight: number) => {
+      const { transitionHeights } = props
+
+      const calculatedPhase = transitionHeights.findIndex((transitionHeight: number) => {
         return transitionHeight > currPos.y
       })
-      console.log(calculatedPhase);
+      
+      const phasePercentage = 1 - (transitionHeights[calculatedPhase] - currPos.y) / (transitionHeights[calculatedPhase + 1] - transitionHeights[calculatedPhase])
+      
+      setTransitionPhase({ phaseIndex: calculatedPhase, phasePercentage: phasePercentage })
     }, [], null, true, 20
   )
 
   return (
-    <div style={{ height: props.height }}></div>
+    <div style={{
+      height: props.height,
+      backgroundColor: phaseColors[transitionPhase.phaseIndex],
+      opacity: transitionPhase.phasePercentage
+    }}></div>
   )
 }

@@ -12,7 +12,7 @@ const App: React.FC = () => {
       <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
-        transitionHeights={[400, 800, 1200]}
+        transitionHeights={[300, 600, 900, 1200]}
         height={Math.max(document.body.getBoundingClientRect().height, 1000)}
         />
     </div>
