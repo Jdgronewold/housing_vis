@@ -16,7 +16,10 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
   const svgRef = useRef(null)
   const phaseColors = ['red', 'blue', 'green', 'purple']
   const elevationMinMax = d3.extent(props.data, (datum: HouseData) => datum.elevation) as [number, number]
+  const sqFtMinMax = d3.extent(props.data, (datum: HouseData) => datum.price_per_sqft) as [number, number]
   const elevationScale = d3.scaleLinear().domain(elevationMinMax).range([0, props.height - 25])
+  const sqFtSFScale = d3.scaleLinear().domain(sqFtMinMax).range([0, props.width - 25])
+  const sqFtNYScale = d3.scaleLinear().domain(sqFtMinMax.reverse()).range([0, props.width - 25])
 
   const [transitionPhase, setTransitionPhase] =
     useState<{phaseIndex: number, phasePercentage: number}>({ phaseIndex: 0, phasePercentage: 0})
@@ -49,30 +52,41 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         .select('g')
         .attr('class', 'container')
         .attr('transform', 'translate(25, 25)')
-      console.log(transitionPhase.phaseIndex);
       
-      const percentage = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1
-
+      const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1
+      const percentageWidth = transitionPhase.phaseIndex === 2 ?
+        1 - transitionPhase.phasePercentage :
+        transitionPhase.phaseIndex > 2 ? 0 : 1
+      const percentageX = transitionPhase.phaseIndex >= 3 ? transitionPhase.phasePercentage : 0
+      const roundedCorners = transitionPhase.phaseIndex >= 3 ? 6 : 0
       const opacity = transitionPhase.phaseIndex < 1 ? 0 : 1
+
+      
 
       containerElement.selectAll('g')
         .data(props.data, (data: HouseData) => `${data.elevation} ${data.price}`)
         .join((enter) => {
           return enter.append('g')
                       .attr('transform', (d: HouseData) => {
-                        const translateX = d.in_sf ? 0 : props.width / 2
-                        return `translate(${translateX}, ${props.height - (elevationScale(d.elevation) * percentage)})`
+                        const translateX = d.in_sf ?
+                          (0 + percentageX * sqFtSFScale(d.price_per_sqft))  :
+                          (props.width - 25 - (sqFtNYScale(d.price_per_sqft) * percentageX))
+                        const barHeight = props.height - (elevationScale(d.elevation) * percentageY)
+                        const rotateAmount = d.in_sf ? 0 : 180
+                        return `translate(${translateX}, ${barHeight}) rotate(${rotateAmount})`
                       })
                       .append('rect')
                       .attr('height', 6)
-                      .attr('width', (props.width - 10) /2)
+                      .attr('width', Math.max((percentageWidth * (props.width - 30) / 2), 6))
                       .attr('fill', (data: HouseData) => data.in_sf ? 'green' : 'blue')
                       .attr('opacity', opacity)
+                      .attr('rx', roundedCorners)
+                      .attr('ry', roundedCorners)
 
 
         })
     }
-  }, [transitionPhase, props, elevationScale, phaseColors, svgRef ])
+  }, [transitionPhase, props, elevationScale, sqFtSFScale, sqFtNYScale, phaseColors, svgRef ])
 
   return (
     <div style={{
