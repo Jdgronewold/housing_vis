@@ -8,12 +8,13 @@ import './App.css'
 
 const App: React.FC = () => {
   return (
-    <div className="App">
+    <div className="App" style={{ height: 3000 }}>
       <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
-        transitionHeights={[300, 600, 900, 1200]}
-        height={Math.max(document.body.getBoundingClientRect().height, 1000)}
+        transitionHeights={[600, 1200, 1800, 2400]}
+        height={Math.max(document.body.getBoundingClientRect().height, 800)}
+        width={600}
         />
     </div>
   );
