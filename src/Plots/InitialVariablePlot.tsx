@@ -55,7 +55,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         } else if (percentageWidth > dataHeightRoundedUp) {
           return 0
         } else {
-          return (dataHeightRoundedUp - percentageWidth) / .05
+          return (dataHeightRoundedUp - percentageWidth) / .01
         }
       }
       
