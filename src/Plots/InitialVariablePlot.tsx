@@ -47,15 +47,15 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
 
       const determineTriangleWith = (data: HouseData, percentageWidth: number): number => {
         const dataHeightPercentage = data.elevation / elevationMinMax[1]
-        const dataHeightRoundedDown = (Math.floor(dataHeightPercentage * 100) / 100)
-        const dataHeightRoundedUp = (Math.ceil(dataHeightPercentage * 100) / 100)
+        const dataHeightRoundedDown = dataHeightPercentage - 0.1 // (Math.floor(dataHeightPercentage * 10) / 10)
+        const dataHeightRoundedUp = dataHeightPercentage + 0.1 //(Math.ceil(dataHeightPercentage * 10) / 10)
 
         if (percentageWidth < dataHeightRoundedDown) {
           return 1
         } else if (percentageWidth > dataHeightRoundedUp) {
           return 0
         } else {
-          return (dataHeightRoundedUp - percentageWidth) / .01
+          return (dataHeightRoundedUp - percentageWidth) / .1
         }
       }
       
@@ -102,8 +102,9 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                           .select('rect')
                           .attr('width', (data: HouseData) => {
                             if (transitionPhase.phaseIndex === 2) {
-                              const calcPercentageWidth = determineTriangleWith(data, percentageWidth)                             
-                              return Math.max((calcPercentageWidth * (props.width - 30) / 2), 6)
+                              const calcPercentageWidth = determineTriangleWith(data, percentageWidth)
+                              const width = Math.min((calcPercentageWidth * (props.width - 30) / 2), (props.width - 30) / 2)                            
+                              return Math.max(width, 6)
                             }                            
                             return Math.max((percentageWidth * (props.width - 30) / 2), 6)
                           })
