@@ -156,7 +156,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
               .append('rect')
               .attr('transform', (d: string) => {
                 const isSF = d === 'green'
-                return `translate(${isSF ? 0 : sqFtSFScale(2205)}, ${isSF ? (props.height - 25) - elevationScale(31):  props.height -25}) rotate(-90)`
+                return `translate(${isSF ? 0 : sqFtSFScale(1900)}, ${isSF ? (props.height - 25) - elevationScale(31):  props.height -25}) rotate(-90)`
               })
               .attr('rotateY', 180)
           },
@@ -164,12 +164,12 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
             return update.select('rect').attr('fill', (data: string) => data)
               .attr('width', (data: string) => {
                 const isSF = data === 'green'
-                const maxSFHeight = (props.height - 25) - elevationScale(31) / (props.height - 25)
+                const maxSFHeight = (props.height - 25) - elevationScale(31)
                 return isSF ? maxSFHeight * boxSizePercentage : elevationScale(31)
               })
               .attr('height', (data: string) => {
                 const isSF = data === 'green'
-                const maxNYWidth = (props.width - 25) - sqFtSFScale(2205) / (props.width - 25)
+                const maxNYWidth = (props.width - 25) - sqFtSFScale(1900)
                 return isSF ? props.width - 25 : maxNYWidth * boxSizePercentage 
               })
               .attr('opacity', boxOpacity)
