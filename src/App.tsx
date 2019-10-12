@@ -3,10 +3,18 @@ import React from 'react';
 import { SmallScatterPlot } from './Plots/smallScatterPlot'
 import { InitialVariablePlot } from './Plots/InitialVariablePlot'
 import { housingData } from './data'
+import { processData } from './Utils/process_data'
 
 import './App.css'
 
 const App: React.FC = () => {
+  const { features, labels, testFeatures, testLabels } = processData(housingData, {
+    labelColumns: ['in_sf'],
+    dataColumns: ['elevation', 'price_per_sqft']
+  })
+
+  console.log(features);
+  
   return (
     <div className="App" style={{ height: 10000 }}>
       <RenderSmallPlots />
