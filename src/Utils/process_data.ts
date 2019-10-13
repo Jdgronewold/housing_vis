@@ -1,4 +1,4 @@
-import { first, dropRightWhile, isNaN, isNumber } from 'lodash'
+import { isNumber } from 'lodash'
 import shuffleSeed from 'shuffle-seed'
 import { HouseData } from '../data';
 
@@ -22,6 +22,13 @@ interface ProcessDataParameters {
   splitTest?: boolean
 }
 
+interface ProcessedData {
+  features: number[][]
+  labels: number[][]
+  testFeatures?: number[][]
+  testLabels?: number[][]
+}
+
 export function processData(
   data: HouseData[],
   {
@@ -31,7 +38,7 @@ export function processData(
     shuffle = false,
     splitTest = false
   }: ProcessDataParameters
-) {
+): ProcessedData {
 
   let labels = extractColumns(data, labelColumns);
   let features = extractColumns(data, dataColumns);
@@ -47,9 +54,9 @@ export function processData(
       : Math.floor(data.length / 2);
 
     return {
-      features: data.slice(trainSize),
+      features: features.slice(trainSize),
       labels: labels.slice(trainSize),
-      testFeatures: data.slice(0, trainSize),
+      testFeatures: features.slice(0, trainSize),
       testLabels: labels.slice(0, trainSize)
     };
   } else {

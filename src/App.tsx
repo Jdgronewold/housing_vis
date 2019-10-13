@@ -4,6 +4,7 @@ import { SmallScatterPlot } from './Plots/smallScatterPlot'
 import { InitialVariablePlot } from './Plots/InitialVariablePlot'
 import { housingData } from './data'
 import { processData } from './Utils/process_data'
+import { LogisticRegression } from './TensforFlow/logisticRegression'
 
 import './App.css'
 
@@ -13,7 +14,9 @@ const App: React.FC = () => {
     dataColumns: ['elevation', 'price_per_sqft']
   })
 
-  console.log(features);
+  const test = new LogisticRegression(features, labels)
+  test.train();
+  console.log(test.test(testFeatures, testLabels))
   
   return (
     <div className="App" style={{ height: 10000 }}>
