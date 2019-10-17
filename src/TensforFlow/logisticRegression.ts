@@ -22,7 +22,7 @@ export class LogisticRegression {
     this.costHistory = [];
 
     this.options = {
-      ...{ learningRate: 0.1, iterations: 100, decisionBoundary: 0.5, batchSize: 1 },
+      ...{ learningRate: 0.1, iterations: 10, decisionBoundary: 0.5, batchSize: 20 },
       ...options
     };
 
@@ -106,7 +106,7 @@ export class LogisticRegression {
       .abs()
       .sum()
       .dataSync<"int32">()[0];
-
+      
     return (predictions.shape[0] - incorrect) / predictions.shape[0];
   }
 }

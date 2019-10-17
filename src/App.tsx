@@ -8,15 +8,19 @@ import { LogisticRegression } from './TensforFlow/logisticRegression'
 
 import './App.css'
 
-const App: React.FC = () => {
-  const { features, labels, testFeatures, testLabels } = processData(housingData, {
-    labelColumns: ['in_sf'],
-    dataColumns: ['elevation', 'price_per_sqft']
-  })
+const { features, labels, testFeatures, testLabels } = processData(housingData, {
+  labelColumns: ['in_sf'],
+  dataColumns: ['elevation'],
+  splitTest: 100
+})
 
-  const test = new LogisticRegression(features, labels)
-  test.train();
-  console.log(test.test(testFeatures, testLabels))
+const test = new LogisticRegression(features, labels)
+test.train();
+const percentageRight = test.test(testFeatures, testLabels)
+console.log('precentage right = ', percentageRight * 100, "%");
+  
+
+const App: React.FC = () => {
   
   return (
     <div className="App" style={{ height: 10000 }}>

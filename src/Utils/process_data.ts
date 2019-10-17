@@ -19,7 +19,7 @@ interface ProcessDataParameters {
   labelColumns?: (keyof HouseData)[]
   converters?: { [key: string]: Function }
   shuffle?: boolean
-  splitTest?: boolean
+  splitTest?: number
 }
 
 interface ProcessedData {
@@ -36,7 +36,7 @@ export function processData(
     dataColumns = [],
     converters = {},
     shuffle = false,
-    splitTest = false
+    splitTest = 0
   }: ProcessDataParameters
 ): ProcessedData {
 
