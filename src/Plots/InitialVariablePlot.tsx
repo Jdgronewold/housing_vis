@@ -12,8 +12,13 @@ interface InitialVariablePlotProps {
   class?: string
 }
 
+// Note - at some point clean up the gigantic hook. The scales can probably all be moved inside of it, although it propabl does
+// not matter because it re renders so much on scroll. And figure out how to do they whole determineTriangleWidth once instead of
+// tons of times
+
 export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: InitialVariablePlotProps) => {
   const svgRef = useRef(null)
+  const scrollPosition = useRef(0)
   const elevationMinMax = d3.extent(props.data, (datum: HouseData) => datum.elevation) as [number, number]
   const sqFtMinMax = d3.extent(props.data, (datum: HouseData) => datum.price_per_sqft) as [number, number]
   const elevationScale = d3.scaleLinear().domain(elevationMinMax).range([0, props.height - 25])
@@ -40,6 +45,8 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         } else {
           phasePercentage = 1
         }
+
+        scrollPosition.current = currPos.y
         
         setTransitionPhase({ phaseIndex: calculatedPhase, phasePercentage: Math.min(1, phasePercentage) })
       }
@@ -49,7 +56,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
   useEffect(() => {
     if (svgRef && svgRef.current) {
 
-      const determineTriangleWith = (data: HouseData, percentageWidth: number): number => {
+      const determineTriangleWidth = (data: HouseData, percentageWidth: number): number => {
         const dataHeightPercentage = data.elevation / elevationMinMax[1]
         const dataHeightRoundedDown = dataHeightPercentage - 0.1 // (Math.floor(dataHeightPercentage * 10) / 10)
         const dataHeightRoundedUp = dataHeightPercentage + 0.1 //(Math.ceil(dataHeightPercentage * 10) / 10)
@@ -91,7 +98,9 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
       const opacity = transitionPhase.phaseIndex < 1 ? 0 : 0.8
 
       const boxOpacity = transitionPhase.phaseIndex > 3 ? 0.25 : 0
-      const boxSizePercentage = transitionPhase.phaseIndex > 3 ? transitionPhase.phasePercentage : 0
+      const boxSizePercentage = transitionPhase.phaseIndex === 4 ?
+        transitionPhase.phasePercentage :
+        transitionPhase.phaseIndex > 4 ? 1 : 0
       
       containerElement.selectAll('g')
         .data(props.data, (data: HouseData, i: number) => `${data.elevation} + ${i}`)
@@ -117,7 +126,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                           .select('rect')
                           .attr('width', (data: HouseData) => {
                             if (transitionPhase.phaseIndex === 2) {
-                              const calcPercentageWidth = determineTriangleWith(data, percentageWidth)
+                              const calcPercentageWidth = determineTriangleWidth(data, percentageWidth)
                               const width = Math.min((calcPercentageWidth * (props.width - 30) / 2), (props.width - 30) / 2)                            
                               return Math.max(width, 6)
                             }                            
@@ -127,7 +136,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                           .attr('opacity', (_, i) =>  i % 3 === 0 ? opacity : i % 2 ? opacity * 0.7 : opacity * 0.4 )
                           .attr('rx', (data: HouseData) => {
                             if (transitionPhase.phaseIndex === 2) {
-                              const calcPercentageWidth = determineTriangleWith(data, percentageWidth)                             
+                              const calcPercentageWidth = determineTriangleWidth(data, percentageWidth)                             
                               const width = Math.max((calcPercentageWidth * (props.width - 30) / 2), 6)
                               if (width === 6) {
                                 return width
@@ -137,7 +146,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                           })
                           .attr('ry', (data: HouseData) => {
                             if (transitionPhase.phaseIndex === 2) {
-                              const calcPercentageWidth = determineTriangleWith(data, percentageWidth)                             
+                              const calcPercentageWidth = determineTriangleWidth(data, percentageWidth)                             
                               const width = Math.max((calcPercentageWidth * (props.width - 30) / 2), 6)
                               if (width === 6) {
                                 return width
@@ -177,12 +186,14 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
     }
   }, [transitionPhase, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
 
+  const plotPosition = transitionPhase.phaseIndex < props.transitionHeights.length ? 'fixed' : 'relative'
+  const plotTop = transitionPhase.phaseIndex < props.transitionHeights.length ? 0 : scrollPosition.current - props.height
   return (
     <div style={{
       height: props.height,
       width: props.width,
-      position: 'fixed',
-      top: 0
+      position: plotPosition,
+      top: plotTop
     }}>
       <svg ref={svgRef}>
         <g></g>

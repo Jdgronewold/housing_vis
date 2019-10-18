@@ -2,17 +2,9 @@ import React from 'react'
 import * as d3 from 'd3'
 
 import { HouseData } from '../data'
+import { GenericPlotProps } from './sharedPlotTypes'
 
-interface SmallScatterPlotProps {
-  data: HouseData[]
-  xDataKey: keyof HouseData
-  yDataKey: keyof HouseData
-  width?: number
-  height?: number
-  class?: string
-}
-
-export const SmallScatterPlot: React.FC<SmallScatterPlotProps> = (props: SmallScatterPlotProps) => {
+export const SmallScatterPlot: React.FC<GenericPlotProps> = (props: GenericPlotProps) => {
   
   const width = props.width ? props.width : 100
   const height = props.height ? props.height : 100
@@ -20,8 +12,8 @@ export const SmallScatterPlot: React.FC<SmallScatterPlotProps> = (props: SmallSc
   const xMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.xDataKey]) as [number, number]
   const yMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.yDataKey]) as [number, number]
 
-  const xScale = d3.scaleLinear().domain(xMinAndMax.reverse()).range([10, 80])
-  const yScale = d3.scaleLinear().domain(yMinAndMax.reverse()).range([10, 80])
+  const xScale = d3.scaleLinear().domain(xMinAndMax.reverse()).range([10, width - 20])
+  const yScale = d3.scaleLinear().domain(yMinAndMax.reverse()).range([10, width - 20])
 
 
   const createDataPoints = () => {

@@ -2,7 +2,31 @@ import { isNumber } from 'lodash'
 import shuffleSeed from 'shuffle-seed'
 import { HouseData } from '../data';
 
-function extractColumns(data: HouseData[], columnNames: (keyof HouseData)[]): number[][] {
+
+export interface SplitHouseData {
+  SFData: HouseData[]
+  NYData: HouseData[]
+}
+
+export function splitData(data: HouseData[]): SplitHouseData {
+  const SFData: HouseData[] = []
+  const NYData: HouseData[] = []
+
+  data.forEach((houseData: HouseData) => {
+    if (houseData.in_sf) {
+      SFData.push(houseData)
+    } else {
+      NYData.push(houseData)
+    }
+  })
+
+  return {
+    SFData,
+    NYData
+  }
+}
+
+export function extractColumns(data: HouseData[], columnNames: (keyof HouseData)[]): number[][] {
   
   return data.map((d: HouseData) => {
     const dataArray: number[] = []
