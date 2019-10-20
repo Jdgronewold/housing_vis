@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useScrollPosition } from '@n8tb1t/use-scroll-position'
 import * as d3 from 'd3'
 
 import { HouseData } from '../data'
+import { useTransitionPhase } from '../Utils/scrollTransitionWrapper'
 
 interface InitialVariablePlotProps {
   data: HouseData[]
@@ -18,40 +18,13 @@ interface InitialVariablePlotProps {
 
 export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: InitialVariablePlotProps) => {
   const svgRef = useRef(null)
-  const scrollPosition = useRef(0)
   const elevationMinMax = d3.extent(props.data, (datum: HouseData) => datum.elevation) as [number, number]
   const sqFtMinMax = d3.extent(props.data, (datum: HouseData) => datum.price_per_sqft) as [number, number]
   const elevationScale = d3.scaleLinear().domain(elevationMinMax).range([0, props.height - 25])
   const sqFtSFScale = d3.scaleLinear().domain(sqFtMinMax).range([0, props.width - 25])
   const sqFtNYScale = d3.scaleLinear().domain(sqFtMinMax.reverse()).range([0, props.width - 25])
 
-  const [transitionPhase, setTransitionPhase] =
-    useState<{phaseIndex: number, phasePercentage: number}>({ phaseIndex: 0, phasePercentage: 0})
-
-  useScrollPosition(
-    ({ currPos }) => {
-      const { transitionHeights } = props
-
-      const calculatedPhase = transitionHeights.findIndex((transitionHeight: number) => {
-        return transitionHeight > currPos.y
-      })
-
-      if (calculatedPhase === -1) {
-        setTransitionPhase({ phaseIndex: props.transitionHeights.length, phasePercentage: 1 })
-      } else {
-        let phasePercentage: number
-      if (transitionHeights[calculatedPhase - 1]) {
-        phasePercentage = 1 - ((transitionHeights[calculatedPhase] - currPos.y) / (transitionHeights[calculatedPhase] - transitionHeights[calculatedPhase - 1]))  
-        } else {
-          phasePercentage = 1
-        }
-
-        scrollPosition.current = currPos.y
-        
-        setTransitionPhase({ phaseIndex: calculatedPhase, phasePercentage: Math.min(1, phasePercentage) })
-      }
-    }, [], null, true, 10
-  )
+  const { transitionPhase, scrollTop } = useTransitionPhase(props.transitionHeights)
 
   useEffect(() => {
     if (svgRef && svgRef.current) {
@@ -187,7 +160,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
   }, [transitionPhase, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
 
   const plotPosition = transitionPhase.phaseIndex < props.transitionHeights.length ? 'fixed' : 'relative'
-  const plotTop = transitionPhase.phaseIndex < props.transitionHeights.length ? 0 : scrollPosition.current - props.height
+  const plotTop = transitionPhase.phaseIndex < props.transitionHeights.length ? 0 : scrollTop - props.height
   return (
     <div style={{
       height: props.height,

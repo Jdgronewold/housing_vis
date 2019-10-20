@@ -36,9 +36,16 @@ const App: React.FC = () => {
         transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
         height={Math.max(document.body.getBoundingClientRect().height, 800)}
         width={600}
-        /> */}
-      {/* <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
-      <RadialLinePlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} />
+        />
+      <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
+      <RadialLinePlot
+        data={housingData}
+        yDataKey={"in_sf"}
+        xDataKey={"elevation"}
+        width={600}
+        height={600}
+        transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
+      />
     </div>
   );
 }
