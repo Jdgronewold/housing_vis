@@ -44,7 +44,7 @@ const App: React.FC = () => {
         xDataKey={"elevation"}
         width={600}
         height={600}
-        transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
+        transitionHeights={[0, 1, 1200, 5000, 7200, 7500]}
       />
     </div>
   );
