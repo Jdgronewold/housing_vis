@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import * as d3 from 'd3'
 
 import { HouseData } from '../data'
@@ -13,7 +13,29 @@ interface RadialPlotProps extends GenericPlotProps {
 export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps) => {
   const { height, width, xDataKey, data } = props
   const { SFData, NYData } = splitData(data);
-  const { transitionPhase: { phaseIndex, phasePercentage }, scrollTop } = useTransitionPhase(props.transitionHeights)
+  const { transitionPhase: { phaseIndex, phasePercentage } } = useTransitionPhase(props.transitionHeights)
+
+  const xMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.xDataKey]) as [number, number]
+  const yMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.yDataKey]) as [number, number]
+
+  const xScale = d3.scaleLinear().domain(xMinAndMax.reverse()).range([10, width - 20])
+  const yScale = d3.scaleLinear().domain(yMinAndMax.reverse()).range([10, width - 20])
+
+  const interpolation = (houseData: HouseData[]) => {
+    return houseData.map((datum: HouseData, index) => {
+      const angle = (index / (houseData.length / 2)) * Math.PI; 
+      const xRadial = (scale(data[xDataKey]) * Math.cos(angle)) + (width/2);
+      const yRadial = (scale(data[xDataKey]) * Math.sin(angle)) + (width/2);
+
+      const xLinear = xScale(houseData[props.xDataKey])
+      const yLinear = yScale(houseData[props.yDataKey])
+
+      return d3.interpolate([xRadial, yRadial], [xLinear, yLinear])
+    })
+  }
+  
+  const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [SFData])
+  const pointsInterpolatersNY = useMemo(() => interpolation(NYData), [NYData])
   
   const minMax = d3.extent(data, (data: HouseData) => data[xDataKey]);
   const scale = d3.scaleLinear().domain(minMax).range([0, width/2]);
@@ -23,7 +45,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const SFRadialDataPoints: [number, number][] = SFData.map((data: HouseData, index) => {
     const angle = (index / (SFData.length / 2)) * Math.PI; 
     const x = (scale(data[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
-    const y = (scale(data[xDataKey]) * Math.sin(angle)* radiusPercentage) + (width/2);
+    const y = (scale(data[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
     return [x, y]
   })
 
@@ -34,6 +56,12 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return [x, y]
   })
 
+  const staticCirclesTransform = phaseIndex === 3 ?
+    phasePercentage * 600 :
+    phaseIndex < 3 ? 0 : 600
+  
+  const translateString = `translate(0px, -${staticCirclesTransform}px)`
+  
   return (
     <div className={props.class || ''} style={{ position: 'fixed'}}>
       <svg width={width} height={height}>
@@ -63,9 +91,9 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
                     />
           })
         }
-        {/* <path d={SFpath} fill="blue" fillOpacity="0.1" stroke="blue"/>
-        <path d={NYpath} fill="green" fillOpacity="0.3" stroke="green"/> */}
-        <StaticCirlces scale={scale} width={width} radiusValues={[5, 10, 20, 30, 50]} />
+        <g style={{ transform: translateString }}>
+          <StaticCirlces scale={scale} width={width} radiusValues={[20, 40, 60, 80]} />
+        </g>
       </svg>
     </div>
   )
@@ -101,7 +129,7 @@ const StaticCirlces = React.memo<StaticCirlces>(({ radiusValues, scale, width })
   })
   
   return (
-    <g>
+    <>
       {
         finalPaths.map((path: string, index) => {
           return (
@@ -124,6 +152,6 @@ const StaticCirlces = React.memo<StaticCirlces>(({ radiusValues, scale, width })
           )
         })
       }
-    </g>
+    </>
   )
 })
