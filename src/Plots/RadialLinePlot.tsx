@@ -21,38 +21,39 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const xScale = d3.scaleLinear().domain(xMinAndMax.reverse()).range([10, width - 20])
   const yScale = d3.scaleLinear().domain(yMinAndMax.reverse()).range([10, width - 20])
 
+  const minMax = d3.extent(data, (data: HouseData) => data[xDataKey]);
+  const scaleRadial = d3.scaleLinear().domain(minMax).range([0, width/2]);
+  const radiusPercentage = phaseIndex < 2 ? 0 : phaseIndex === 2 ? phasePercentage : 1
+
   const interpolation = (houseData: HouseData[]) => {
     return houseData.map((datum: HouseData, index) => {
       const angle = (index / (houseData.length / 2)) * Math.PI; 
-      const xRadial = (scale(data[xDataKey]) * Math.cos(angle)) + (width/2);
-      const yRadial = (scale(data[xDataKey]) * Math.sin(angle)) + (width/2);
+      const xRadial = (scaleRadial(datum[xDataKey]) * Math.cos(angle)) + (width/2);
+      const yRadial = (scaleRadial(datum[xDataKey]) * Math.sin(angle)) + (width/2);
 
-      const xLinear = xScale(houseData[props.xDataKey])
-      const yLinear = yScale(houseData[props.yDataKey])
+      const xLinear = xScale(datum[props.xDataKey])
+      const yLinear = yScale(datum[props.yDataKey])
 
       return d3.interpolate([xRadial, yRadial], [xLinear, yLinear])
     })
   }
+
+  const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [interpolation, SFData])
+  const pointsInterpolatersNY = useMemo(() => interpolation(NYData), [interpolation, NYData])
   
-  const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [SFData])
-  const pointsInterpolatersNY = useMemo(() => interpolation(NYData), [NYData])
-  
-  const minMax = d3.extent(data, (data: HouseData) => data[xDataKey]);
-  const scale = d3.scaleLinear().domain(minMax).range([0, width/2]);
-  const radiusPercentage = phaseIndex < 2 ? 0 : phaseIndex === 2 ? phasePercentage : 1
   // const pathGenerator = d3.line().curve(d3.curveCardinal);
 
-  const SFRadialDataPoints: [number, number][] = SFData.map((data: HouseData, index) => {
+  const SFRadialDataPoints: [number, number][] = SFData.map((datum: HouseData, index) => {
     const angle = (index / (SFData.length / 2)) * Math.PI; 
-    const x = (scale(data[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
-    const y = (scale(data[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
+    const x = (scaleRadial(datum[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
+    const y = (scaleRadial(datum[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
     return [x, y]
   })
 
   const NYRadialDataPoints: [number, number][] = NYData.map((data: HouseData, index) => {
     const angle = (index / (NYData.length / 2)) * Math.PI; 
-    const x = (scale(data[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
-    const y = (scale(data[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
+    const x = (scaleRadial(data[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
+    const y = (scaleRadial(data[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
     return [x, y]
   })
 
@@ -61,6 +62,9 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     phaseIndex < 3 ? 0 : 600
   
   const translateString = `translate(0px, -${staticCirclesTransform}px)`
+
+  const useInterpolatedPositions = phaseIndex > 2
+  const dataPointsPositionPercentage = phaseIndex < 3 ? 0 : phaseIndex === 3 ? phasePercentage : 1
   
   return (
     <div className={props.class || ''} style={{ position: 'fixed'}}>
@@ -68,10 +72,12 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
         
         {
           SFRadialDataPoints.map((point: [number, number], index) => {
+            const cx = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[0] : point[0]
+            const cy = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[1] : point[1]
             return <circle
                       key={`${index}`}
-                      cx={point[0]}
-                      cy={point[1]}
+                      cx={cx}
+                      cy={cy}
                       r={5}
                       fillOpacity={0.2}
                       fill={'blue'}
@@ -81,10 +87,12 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
         }
         {
           NYRadialDataPoints.map((point: [number, number], index) => {
+            const cx = useInterpolatedPositions ? pointsInterpolatersNY[index](dataPointsPositionPercentage)[0] : point[0]
+            const cy = useInterpolatedPositions ? pointsInterpolatersNY[index](dataPointsPositionPercentage)[1] : point[1]
             return <circle
                       key={`${index}`}
-                      cx={point[0]}
-                      cy={point[1]}
+                      cx={cx}
+                      cy={cy}
                       r={5}
                       fillOpacity={0.2}
                       fill={'green'}
@@ -92,7 +100,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
           })
         }
         <g style={{ transform: translateString }}>
-          <StaticCirlces scale={scale} width={width} radiusValues={[20, 40, 60, 80]} />
+          <StaticCirlces scale={scaleRadial} width={width} radiusValues={[20, 40, 60, 80]} />
         </g>
       </svg>
     </div>
