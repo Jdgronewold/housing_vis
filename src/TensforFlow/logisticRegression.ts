@@ -97,6 +97,10 @@ export class LogisticRegression {
       .cast('float32');
   }
 
+  public getWeights() {
+    return this.weights
+  }
+
   public test(testFeatures, testLabels) {
     const predictions = this.predict(testFeatures);
     testLabels = tf.tensor(testLabels);

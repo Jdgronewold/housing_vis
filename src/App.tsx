@@ -9,24 +9,20 @@ import { RadialLinePlot } from './Plots/RadialLinePlot'
 
 import './App.css'
 
-// const { features, labels, testFeatures, testLabels } = processData(housingData, {
-//   labelColumns: ['in_sf'],
-//   dataColumns: ['elevation', 'price_per_sqft'],
-//   splitTest: 100,
-//   shuffle: true
-// })
+const { features, labels, testFeatures, testLabels } = processData(housingData, {
+  labelColumns: ['in_sf'],
+  dataColumns: ['elevation'],
+  splitTest: 100,
+  shuffle: true
+})
 
-// const test = new LogisticRegression(features, labels)
-// test.train();
-// const percentageRight = test.test(testFeatures, testLabels)
-// console.log('precentage right = ', percentageRight * 100, "%");
+const test = new LogisticRegression(features, labels)
+test.train();
+const percentageRight = test.test(testFeatures, testLabels)
+console.log('precentage right = ', percentageRight * 100, "%");
   
 
 const App: React.FC = () => {
-  console.log('data length', housingData.length)
-  console.log(housingData.reduce((accum: number, data: HouseData) => {
-    return accum += data.in_sf
-  }, 0))
   
   return (
     <div className="App" style={{ height: 10000 }}>
@@ -39,6 +35,7 @@ const App: React.FC = () => {
         />
       <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
       <RadialLinePlot
+        sigmoidWeights={Array.from(test.getWeights().dataSync<"int32">())}
         data={housingData}
         yDataKey={"in_sf"}
         xDataKey={"elevation"}
