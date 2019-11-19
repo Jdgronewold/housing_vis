@@ -25,15 +25,15 @@ console.log('precentage right = ', percentageRight * 100, "%");
 const App: React.FC = () => {
   
   return (
-    <div className="App" style={{ height: 10000 }}>
-      {/* <RenderSmallPlots />
+    <div className="App" style={{ height: 16000 }}>
+      <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
         transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
         height={Math.max(document.body.getBoundingClientRect().height, 800)}
         width={600}
         />
-      <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
+      {/* <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
       <RadialLinePlot
         sigmoidWeights={Array.from(test.getWeights().dataSync<"int32">())}
         data={housingData}
@@ -41,7 +41,7 @@ const App: React.FC = () => {
         xDataKey={"elevation"}
         width={600}
         height={600}
-        transitionHeights={[0, 1, 1200, 5000, 7200, 7500]}
+        transitionHeights={[7700, 7800, 7801, 9000, 12800, 15000, 15300]}
       />
     </div>
   );

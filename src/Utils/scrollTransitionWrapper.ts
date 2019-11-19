@@ -21,6 +21,7 @@ export function useTransitionPhase(scrollTransitionPoints: number[]): { transiti
 
       if (calculatedPhase === -1) {
         setTransitionPhase({ phaseIndex: scrollTransitionPoints.length, phasePercentage: 1 })
+        scrollPosition.current = currPos.y
       } else {
         let phasePercentage: number
       if (scrollTransitionPoints[calculatedPhase - 1]) {

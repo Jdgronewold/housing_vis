@@ -88,7 +88,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const minMax = d3.extent(data, (data: HouseData) => data[xDataKey]);
   const scaleRadial = d3.scaleLinear().domain(minMax).range([0, width/2]);
-  const radiusPercentage = phaseIndex < 2 ? 0 : phaseIndex === 2 ? phasePercentage : 1
+  const radiusPercentage = phaseIndex < 3 ? 0 : phaseIndex === 3 ? phasePercentage : 1
 
   const interpolation = (houseData: HouseData[]) => {
     return houseData.map((datum: HouseData, index) => {
@@ -115,6 +115,10 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const finalTweenedPathPathGenerator = pathTween(radiusPath, sigmoidPath, 4)
 
+  if (phaseIndex === 0) {
+    return null
+  }
+
   const SFRadialDataPoints: [number, number][] = SFData.map((datum: HouseData, index) => {
     const angle = (index / (SFData.length / 2)) * Math.PI; 
     const x = (scaleRadial(datum[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
@@ -129,14 +133,14 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return [x, y]
   })
 
-  const staticCirclesTransform = phaseIndex === 3 ?
-    phasePercentage * 600 :
-    phaseIndex < 3 ? 0 : 600
+  const staticCirclesTransform = phaseIndex === 4 ?
+   1 - phasePercentage * 2 :
+    phaseIndex < 4 ? 1 : 0
   
-  const translateString = `translate(0px, -${staticCirclesTransform}px)`
+  const staticCircleOpacity = staticCirclesTransform
 
-  const useInterpolatedPositions = phaseIndex > 2
-  const dataPointsPositionPercentage = phaseIndex < 3 ? 0 : phaseIndex === 3 ? phasePercentage : 1
+  const useInterpolatedPositions = phaseIndex > 3
+  const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
 
   const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
   
@@ -174,7 +178,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
           })
         }
         <path d={movingPath} fill="transparent" stroke="darkGrey" strokeWidth={useInterpolatedPositions ? 3 : 1} />
-        <g style={{ transform: translateString }}>
+        <g style={{ opacity: staticCircleOpacity }}>
           <StaticCirlces scale={scaleRadial} width={width} radiusValues={[20, 40, 60, 80]} />
         </g>
       </svg>

@@ -25,6 +25,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
   const sqFtNYScale = d3.scaleLinear().domain(sqFtMinMax.reverse()).range([0, props.width - 25])
 
   const { transitionPhase, scrollTop } = useTransitionPhase(props.transitionHeights)
+  const lastTransitionHeight = props.transitionHeights[props.transitionHeights.length - 1]
 
   useEffect(() => {
     if (svgRef && svgRef.current) {
@@ -44,17 +45,20 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
       }
       
       const svgElement = d3.select(svgRef.current)
-      svgElement.attr('width', props.width).attr('height', props.height)
 
       const containerElement = svgElement
-        .select('g')
-        .attr('class', 'container')
-        .attr('transform', 'translate(25, 25)')
+      .select('g')
+      .attr('class', 'container')
+      .attr('transform', 'translate(25, 25)')
 
       const boxContainer = svgElement
         .select('g.box-container')
         .attr('class', 'box-container')
         .attr('transform', 'translate(25, 25)')
+      
+      const removeData = scrollTop - lastTransitionHeight >= props.height + 200
+
+      svgElement.attr('width', props.width).attr('height', props.height)
       
       const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1
 
@@ -75,8 +79,9 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         transitionPhase.phasePercentage :
         transitionPhase.phaseIndex > 4 ? 1 : 0
       
+      
       containerElement.selectAll('g')
-        .data(props.data, (data: HouseData, i: number) => `${data.elevation} + ${i}`)
+        .data(removeData ? [] : props.data, (data: HouseData, i: number) => `${data.elevation} + ${i}`)
         .join((enter) => {
           return enter.append('g')
                       .append('rect')   
@@ -127,6 +132,9 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                             }
                             return roundedCorners
                           })
+          },
+          (exit) => {
+            return exit.remove()
           }
         )
 
@@ -157,10 +165,12 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
               .attr('opacity', boxOpacity)
           })
     }
-  }, [transitionPhase, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
+  }, [transitionPhase, scrollTop, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
 
-  const plotPosition = transitionPhase.phaseIndex < props.transitionHeights.length ? 'fixed' : 'relative'
-  const plotTop = transitionPhase.phaseIndex < props.transitionHeights.length ? 0 : scrollTop - props.height
+  const isAtLastPhase = transitionPhase.phaseIndex < props.transitionHeights.length
+  
+  const plotPosition =  isAtLastPhase ? 'fixed' : 'relative'
+  const plotTop = isAtLastPhase ? 0 : lastTransitionHeight - props.height
   return (
     <div style={{
       height: props.height,
