@@ -33,6 +33,7 @@ export class LogisticRegression {
     const currentGuesses = features.matMul(this.weights).sigmoid();
     const differences = currentGuesses.sub(labels);
 
+    // this is what we get when we take the derivative of the SUM(guesses - actual) with respect to both b and m
     const slopes = features
       .transpose()
       .matMul(differences)
@@ -59,6 +60,8 @@ export class LogisticRegression {
 
         this.gradientDescent(featureSlice, labelSlice);
       }
+
+      this.recordCost();
     }
   }
 
@@ -112,6 +115,31 @@ export class LogisticRegression {
       .dataSync<"int32">()[0];
       
     return (predictions.shape[0] - incorrect) / predictions.shape[0];
+  }
+
+  recordCost() {
+    const guesses = this.features.matMul(this.weights).sigmoid();
+
+    const termOne = this.labels.transpose().matMul(guesses.log());
+
+    const termTwo = this.labels
+      .mul(-1)
+      .add(1)
+      .transpose()
+      .matMul(
+        guesses
+          .mul(-1)
+          .add(1)
+          .log()
+      );
+
+    const cost = termOne
+      .add(termTwo)
+      .div(this.features.shape[0])
+      .mul(-1)
+      .dataSync();
+
+    this.costHistory.unshift(cost[0]);
   }
 }
 
