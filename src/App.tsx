@@ -11,26 +11,27 @@ import './App.css'
 
 const { features, labels, testFeatures, testLabels } = processData(housingData, {
   labelColumns: ['in_sf'],
-  dataColumns: ['elevation'],
+  dataColumns: ['elevation', 'price_per_sqft', 'year_built'],
   splitTest: 100,
   shuffle: true
 })
 
-const test = new LogisticRegression(features, labels)
+const test = new LogisticRegression(features, labels, { batchSize: 20, iterations: 30, learningRate: 0.05 })
 test.train();
 const percentageRight = test.test(testFeatures, testLabels)
 console.log('precentage right = ', percentageRight * 100, "%");
-  
+console.log(test.costHistory);
+
 
 const App: React.FC = () => {
-  
+  const height = Math.max(document.body.getBoundingClientRect().height, 800)
   return (
     <div className="App" style={{ height: 16000 }}>
       <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
         transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
-        height={Math.max(document.body.getBoundingClientRect().height, 800)}
+        height={height}
         width={600}
         />
       {/* <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
@@ -41,7 +42,7 @@ const App: React.FC = () => {
         xDataKey={"elevation"}
         width={600}
         height={600}
-        transitionHeights={[7700, 7800, 7801, 9000, 12800, 15000, 15300]}
+        transitionHeights={[7500, 7800, 7801, 9000, 12800, 15000, 15300].map( transition => transition + height)}
       />
     </div>
   );

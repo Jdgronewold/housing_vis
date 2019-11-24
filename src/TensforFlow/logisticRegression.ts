@@ -2,15 +2,15 @@ import * as tf from '@tensorflow/tfjs'
 import {} from 'lodash'
 
 interface RegressionOptions {
-  learningRate: number
-  iterations: number
-  decisionBoundary: number
-  batchSize: number
+  learningRate?: number
+  iterations?: number
+  decisionBoundary?: number
+  batchSize?: number
 }
 export class LogisticRegression {
   private features: tf.Tensor
   private labels: tf.Tensor
-  private costHistory: number[]
+  public costHistory: number[]
   private options: RegressionOptions
   private weights: tf.Tensor
   private mean: tf.Tensor
@@ -46,6 +46,7 @@ export class LogisticRegression {
     const batchQuantity = Math.floor(
       this.features.shape[0] / this.options.batchSize
     );
+
 
     for (let i = 0; i < this.options.iterations; i++) {
       for (let j = 0; j < batchQuantity; j++) {

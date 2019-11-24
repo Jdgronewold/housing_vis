@@ -15,7 +15,7 @@ function generateSigmoid(width: number, height: number, weights: number[]): [num
   
   const pointsArray = []
   for(let i = 0; i < width; i++) {
-    const y = 1 / (1 + Math.exp(-1 * ((weights[1] * i) + weights[0]) + ((width - 20)/2))) * height
+    const y = 1 / (1 + Math.exp(-1 * ((weights[1] * i) + weights[0]) + ((width - 100)/2))) * height
     pointsArray.push([i, y])
   }
   return pointsArray
@@ -142,10 +142,12 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const useInterpolatedPositions = phaseIndex > 3
   const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
 
+  const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
+
   const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
   
   return (
-    <div className={props.class || ''} style={{ position: 'fixed', top: 0}}>
+    <div className={props.class || ''} style={{ position: 'fixed', top: 0, opacity: initialOpacity}}>
       <svg width={width} height={height}>
         
         {
