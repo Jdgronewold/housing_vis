@@ -11,14 +11,29 @@ interface RadialPlotProps extends GenericPlotProps {
   sigmoidWeights: number[]
 }
 
-function generateSigmoid(width: number, height: number, weights: number[]): [number, number][] {
+function generateSigmoid(width: number, height: number, weights: number[], widthOffset: number): [number, number][] {
   
   const pointsArray = []
   for(let i = 0; i < width; i++) {
-    const y = 1 / (1 + Math.exp(-1 * ((weights[1] * i) + weights[0]) + ((width - 100)/2))) * height
+    const y = 1 / (1 + Math.exp(-1 * ((weights[1] * i) + weights[0]) + ((width - widthOffset)/2))) * height
     pointsArray.push([i, y])
   }
   return pointsArray
+}
+
+function generateMultipleSigmoids(width: number, height: number, weights: number[], widthOffsets: number[]):[number, number][][] {
+
+  const allPointsArray = widthOffsets.map((offset: number) => {
+    const pointsArray = []
+  for(let i = 0; i < width; i++) {
+    const y = 1 / (1 + Math.exp(-1 * ((weights[1] * i) + weights[0]) + ((width - offset)/2))) * height
+    pointsArray.push([i, y])
+  }
+  return pointsArray
+  })
+
+  return allPointsArray
+
 }
 
 function pathTween(d0: string, d1: string, precision: number) {
@@ -108,12 +123,26 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   
   const pathGenerator = d3.line().curve(d3.curveCardinal);
   
-  const sigmoidPath = useMemo(() => pathGenerator(generateSigmoid(props.width, props.height - 10, props.sigmoidWeights)),
+  const sigmoidPath = useMemo(() => pathGenerator(generateSigmoid(props.width, props.height - 10, props.sigmoidWeights, 100)),
   [props.width, props.height, props.sigmoidWeights])
 
+
+  const offsetArray = [400, 330, 270, 220, 180, 150, 50, 20, -20, -70, -130, -200]
+  const alternateSigmoids: string[] = useMemo(() => {
+    return generateMultipleSigmoids(props.width, props.height - 10, props.sigmoidWeights, offsetArray).map((pathPoints) => {
+      return pathGenerator(pathPoints)
+    })
+  }, [props.width, props.height, props.sigmoidWeights])
+  
   const radiusPath = useMemo(() => pathGenerator(generateRadialPoints([40], scaleRadial, width)[0]), [width, scaleRadial])
 
-  const finalTweenedPathPathGenerator = pathTween(radiusPath, sigmoidPath, 4)
+  const finalTweenedPathPathGenerator = useMemo(() => {
+    return pathTween(radiusPath, sigmoidPath, 4)
+  }, [])
+
+  const alternateTweenedPathsGenerator = useMemo(() => {
+    return alternateSigmoids.map((path: string) => pathTween(sigmoidPath, path, 2))
+  }, [])
 
   if (phaseIndex === 0) {
     return null
@@ -141,10 +170,13 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const useInterpolatedPositions = phaseIndex > 3
   const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
+  const alternatePathsPositionPercentage = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : 1
 
   const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
 
   const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
+
+  const alternativePaths = alternateTweenedPathsGenerator.map((pathGenerator) => pathGenerator(alternatePathsPositionPercentage))
   
   return (
     <div className={props.class || ''} style={{ position: 'fixed', top: 0, opacity: initialOpacity}}>
@@ -179,7 +211,12 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
                     />
           })
         }
-        <path d={movingPath} fill="transparent" stroke="darkGrey" strokeWidth={useInterpolatedPositions ? 3 : 1} />
+        {
+          alternativePaths.map((path) => {
+            return <path d={path} fill="transparent" stroke="darkGrey" strokeWidth={3} />
+          })
+        }
+        <path d={movingPath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
         <g style={{ opacity: staticCircleOpacity }}>
           <StaticCirlces scale={scaleRadial} width={width} radiusValues={[20, 40, 60, 80]} />
         </g>
