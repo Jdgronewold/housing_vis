@@ -26,7 +26,7 @@ console.log(test.costHistory);
 const App: React.FC = () => {
   const height = Math.max(document.body.getBoundingClientRect().height, 800)
   return (
-    <div className="App" style={{ height: 16000 }}>
+    <div className="App" style={{ height: 19000 }}>
       <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
@@ -42,7 +42,7 @@ const App: React.FC = () => {
         xDataKey={"elevation"}
         width={600}
         height={600}
-        transitionHeights={[7500, 7800, 7801, 9000, 12800, 15000, 15300].map( transition => transition + height)}
+        transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000].map( transition => transition + height)}
       />
     </div>
   );

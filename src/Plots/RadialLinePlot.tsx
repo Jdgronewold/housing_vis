@@ -126,6 +126,19 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const sigmoidPath = useMemo(() => pathGenerator(generateSigmoid(props.width, props.height - 10, props.sigmoidWeights, 100)),
   [props.width, props.height, props.sigmoidWeights])
 
+  const NYAreaGenerator = d3.area()
+                          .x((d) => d[0])
+                          .y0(props.height - 10)
+                          .y1((d) => d[1])
+
+  const SFAreaGenerator = d3.area()
+                            .x((d) => d[0])
+                            .y0(0)
+                            .y1((d) => d[1])                
+
+  const sigmoidPoints = generateSigmoid(props.width, props.height - 10, props.sigmoidWeights, 100)
+  const finalNYArea = NYAreaGenerator(sigmoidPoints)
+  const finalSFArea = SFAreaGenerator(sigmoidPoints)
 
   const offsetArray = [400, 330, 270, 220, 180, 150, 50, 20, -20, -70, -130, -200]
   const alternateSigmoids: string[] = useMemo(() => {
@@ -170,7 +183,8 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const useInterpolatedPositions = phaseIndex > 3
   const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
-  const alternatePathsPositionPercentage = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : 1
+  const backgroundColorsOpacity = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : 1
+  const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
 
   const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
 
@@ -181,7 +195,20 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   return (
     <div className={props.class || ''} style={{ position: 'fixed', top: 0, opacity: initialOpacity}}>
       <svg width={width} height={height}>
-        
+        <pattern id="NYdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
+          <path d="M-1,1 l2,-2
+            M0,4 l4,-4
+            M3,5 l2,-2" 
+            style={{ stroke: 'green', strokeWidth: 1}} />
+        </pattern>
+        <pattern id="SFdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
+          <path d="M-1,1 l2,-2
+            M0,4 l4,-4
+            M3,5 l2,-2" 
+            style={{ stroke: 'blue', strokeWidth: 1}} />
+        </pattern>
+        <path d={finalNYArea} fill="url(#NYdiagonalHatch)" opacity={Math.min(0.2, backgroundColorsOpacity)} />
+        <path d={finalSFArea} fill="url(#SFdiagonalHatch)"  opacity={Math.min(0.2, backgroundColorsOpacity)} />
         {
           SFRadialDataPoints.map((point: [number, number], index) => {
             const cx = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[0] : point[0]
@@ -212,8 +239,17 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
           })
         }
         {
-          alternativePaths.map((path) => {
-            return <path d={path} fill="transparent" stroke="darkGrey" strokeWidth={3} />
+          alternativePaths.map((path, index) => {
+            return (
+              <path
+                d={path}
+                key={index}
+                fill="transparent"
+                stroke="darkGrey"
+                strokeWidth={3}
+                strokeOpacity={alternatePathsPositionPercentage}
+              />
+            )
           })
         }
         <path d={movingPath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
