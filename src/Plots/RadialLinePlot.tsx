@@ -183,7 +183,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const useInterpolatedPositions = phaseIndex > 3
   const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
-  const backgroundColorsOpacity = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : 1
+  const backgroundColorsOpacity = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : phaseIndex === 6 ? 0.2 - (phasePercentage * 0.2)  : 0
   const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
 
   const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
