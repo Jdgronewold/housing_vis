@@ -6,17 +6,18 @@ import { housingData, HouseData } from './data'
 import { processData } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
+import { CostHistoryPlot } from './Plots/costHistoryPlot'
 
 import './App.css'
 
 const { features, labels, testFeatures, testLabels } = processData(housingData, {
   labelColumns: ['in_sf'],
-  dataColumns: ['elevation', 'price_per_sqft', 'year_built'],
+  dataColumns: ['elevation'],
   splitTest: 100,
   shuffle: true
 })
 
-const test = new LogisticRegression(features, labels, { batchSize: 20, iterations: 30, learningRate: 0.05 })
+const test = new LogisticRegression(features, labels, { batchSize: 20, iterations: 70, learningRate: 0.05 })
 test.train();
 const percentageRight = test.test(testFeatures, testLabels)
 console.log('precentage right = ', percentageRight * 100, "%");
@@ -26,7 +27,8 @@ console.log(test.costHistory);
 const App: React.FC = () => {
   const height = Math.max(document.body.getBoundingClientRect().height, 800)
   return (
-    <div className="App" style={{ height: 19000 }}>
+    <div className="App" style={{ height: 25000 }}>
+      
       <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
@@ -41,9 +43,10 @@ const App: React.FC = () => {
         yDataKey={"in_sf"}
         xDataKey={"elevation"}
         width={600}
-        height={600}
+        height={height}
         transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000].map( transition => transition + height)}
       />
+      {/* <CostHistoryPlot costValues={test.costHistory} height={height} width={600} /> */}
     </div>
   );
 }

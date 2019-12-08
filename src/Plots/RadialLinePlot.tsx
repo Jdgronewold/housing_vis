@@ -62,7 +62,7 @@ function pathTween(d0: string, d1: string, precision: number) {
   };
 };
 
-function generateRadialPoints(radiusValues: number[], scale: d3.ScaleLinear<number, number>, width: number): [number, number][][] {
+function generateRadialPoints(radiusValues: number[], scale: d3.ScaleLinear<number, number>, width: number, height: number): [number, number][][] {
   const circleArrays: [number, number][][] = []
 
   for (let i = 0; i < 200; i++) {
@@ -71,7 +71,7 @@ function generateRadialPoints(radiusValues: number[], scale: d3.ScaleLinear<numb
     radiusValues.forEach((radius, index) => {
       
       const xValue = (scale(radius) * Math.cos(angle)) + (width/2);
-      const yValue = (scale(radius) * Math.sin(angle)) + (width/2);
+      const yValue = (scale(radius) * Math.sin(angle)) + (height/2);
       const dataPoint: [number, number] = [xValue, yValue]
 
       if (!circleArrays[index]) {
@@ -99,7 +99,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const yMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.yDataKey]) as [number, number]
 
   const xScale = d3.scaleLinear().domain(xMinAndMax).range([10, width - 20])
-  const yScale = d3.scaleLinear().domain(yMinAndMax).range([10, width - 20])
+  const yScale = d3.scaleLinear().domain(yMinAndMax).range([10, height - 20])
 
   const minMax = d3.extent(data, (data: HouseData) => data[xDataKey]);
   const scaleRadial = d3.scaleLinear().domain(minMax).range([0, width/2]);
@@ -109,7 +109,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return houseData.map((datum: HouseData, index) => {
       const angle = (index / (houseData.length / 2)) * Math.PI; 
       const xRadial = (scaleRadial(datum[xDataKey]) * Math.cos(angle)) + (width/2);
-      const yRadial = (scaleRadial(datum[xDataKey]) * Math.sin(angle)) + (width/2);
+      const yRadial = (scaleRadial(datum[xDataKey]) * Math.sin(angle)) + (height/2);
 
       const xLinear = xScale(datum[props.xDataKey])
       const yLinear = yScale(datum[props.yDataKey])
@@ -147,7 +147,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     })
   }, [props.width, props.height, props.sigmoidWeights])
   
-  const radiusPath = useMemo(() => pathGenerator(generateRadialPoints([40], scaleRadial, width)[0]), [width, scaleRadial])
+  const radiusPath = useMemo(() => pathGenerator(generateRadialPoints([40], scaleRadial, width, height)[0]), [width, scaleRadial])
 
   const finalTweenedPathPathGenerator = useMemo(() => {
     return pathTween(radiusPath, sigmoidPath, 4)
@@ -164,14 +164,14 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const SFRadialDataPoints: [number, number][] = SFData.map((datum: HouseData, index) => {
     const angle = (index / (SFData.length / 2)) * Math.PI; 
     const x = (scaleRadial(datum[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
-    const y = (scaleRadial(datum[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
+    const y = (scaleRadial(datum[xDataKey]) * Math.sin(angle) * radiusPercentage) + (height/2);
     return [x, y]
   })
 
   const NYRadialDataPoints: [number, number][] = NYData.map((data: HouseData, index) => {
     const angle = (index / (NYData.length / 2)) * Math.PI; 
     const x = (scaleRadial(data[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
-    const y = (scaleRadial(data[xDataKey]) * Math.sin(angle) * radiusPercentage) + (width/2);
+    const y = (scaleRadial(data[xDataKey]) * Math.sin(angle) * radiusPercentage) + (height/2);
     return [x, y]
   })
 
@@ -191,9 +191,22 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
 
   const alternativePaths = alternateTweenedPathsGenerator.map((pathGenerator) => pathGenerator(alternatePathsPositionPercentage))
+
+  const isAtLastPhase = phaseIndex >= props.transitionHeights.length
   
+  const plotPosition =  isAtLastPhase ? 'relative' : 'fixed'
+  const lastTransitionHeight = props.transitionHeights[props.transitionHeights.length - 1]
+
+  const plotTop = isAtLastPhase ? lastTransitionHeight - (props.height * 2) : 0
+
   return (
-    <div className={props.class || ''} style={{ position: 'fixed', top: 0, opacity: initialOpacity}}>
+    <div className={props.class || ''} style={{
+      height: props.height,
+      width: props.width,
+      position: plotPosition,
+      top: plotTop,
+      opacity: initialOpacity
+    }}>
       <svg width={width} height={height}>
         <pattern id="NYdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
           <path d="M-1,1 l2,-2
@@ -254,7 +267,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
         }
         <path d={movingPath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
         <g style={{ opacity: staticCircleOpacity }}>
-          <StaticCirlces scale={scaleRadial} width={width} radiusValues={[20, 40, 60, 80]} />
+          <StaticCirlces scale={scaleRadial} width={width} height={height} radiusValues={[20, 40, 60, 80]} />
         </g>
       </svg>
     </div>
@@ -265,12 +278,13 @@ interface StaticCirlces {
   radiusValues: number[]
   scale: d3.ScaleLinear<number, number>
   width: number
+  height: number
 }
 
-const StaticCirlces = React.memo<StaticCirlces>(({ radiusValues, scale, width }) => {
+const StaticCirlces = React.memo<StaticCirlces>(({ radiusValues, scale, width, height }) => {
   const pathGenerator = d3.line().curve(d3.curveCardinal);
 
-  const circleArrays = generateRadialPoints(radiusValues, scale, width)
+  const circleArrays = generateRadialPoints(radiusValues, scale, width, height)
 
   const finalPaths: string[] = circleArrays.map((circleArray) => {
     return pathGenerator(circleArray)

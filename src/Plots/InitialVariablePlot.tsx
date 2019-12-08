@@ -167,10 +167,10 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
     }
   }, [transitionPhase, scrollTop, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
 
-  const isAtLastPhase = transitionPhase.phaseIndex < props.transitionHeights.length
+  const isAtLastPhase = transitionPhase.phaseIndex >= props.transitionHeights.length
   
-  const plotPosition =  isAtLastPhase ? 'fixed' : 'relative'
-  const plotTop = isAtLastPhase ? 0 : lastTransitionHeight - props.height
+  const plotPosition =  isAtLastPhase ? 'relative' : 'fixed'
+  const plotTop = isAtLastPhase ? lastTransitionHeight - props.height : 0
   return (
     <div style={{
       height: props.height,
