@@ -3,12 +3,14 @@ import * as d3 from 'd3'
 
 import { HouseData } from '../data'
 import { useTransitionPhase } from '../Utils/scrollTransitionWrapper'
+import { relative } from 'path'
 
 interface InitialVariablePlotProps {
   data: HouseData[]
   transitionHeights: number[]
   width: number
   height: number
+  top: number
   class?: string
 }
 
@@ -172,16 +174,18 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
   const plotPosition =  isAtLastPhase ? 'relative' : 'fixed'
   const plotTop = isAtLastPhase ? lastTransitionHeight - props.height : 0
   return (
-    <div style={{
-      height: props.height,
-      width: props.width,
-      position: plotPosition,
-      top: plotTop
-    }}>
-      <svg ref={svgRef}>
-        <g></g>
-        <g className="box-container"></g>
-      </svg>
+    <div className='bar-container' style={{ height: (lastTransitionHeight - props.top + props.height)}}>
+      <div style={{
+        height: props.height,
+        width: props.width,
+        position: "sticky",
+        top: 0
+      }}>
+        <svg ref={svgRef}>
+          <g></g>
+          <g className="box-container"></g>
+        </svg>
+      </div>
     </div>
   )
 }

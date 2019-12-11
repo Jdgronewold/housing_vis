@@ -5,6 +5,7 @@ interface CostHistoryProps {
   costValues: number[]
   width: number
   height: number
+  top: number
   class?: string
 }
 
@@ -34,10 +35,12 @@ export const CostHistoryPlot: React.FC<CostHistoryProps> = (props: CostHistoryPr
 }
 
   return (
-    <div className={props.class || ''}>
-      <svg width={width} height={height}>
-        { createDataPoints() }
-      </svg>
+    <div className='cost-container' style={{ height: props.height }}>
+      <div className={props.class || ''} style={{ position: "sticky", top: 0}}>
+        <svg width={width} height={height}>
+          { createDataPoints() }
+        </svg>
+      </div>
     </div>
   )
 }

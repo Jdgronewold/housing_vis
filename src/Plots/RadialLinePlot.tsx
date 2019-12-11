@@ -9,6 +9,7 @@ import { useTransitionPhase } from '../Utils/scrollTransitionWrapper'
 interface RadialPlotProps extends GenericPlotProps {
   transitionHeights: number[]
   sigmoidWeights: number[]
+  top: number
 }
 
 function generateSigmoid(width: number, height: number, weights: number[], widthOffset: number): [number, number][] {
@@ -157,8 +158,11 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return alternateSigmoids.map((path: string) => pathTween(sigmoidPath, path, 2))
   }, [])
 
+  const lastTransitionHeight = props.transitionHeights[props.transitionHeights.length - 1]
+
+
   if (phaseIndex === 0) {
-    return null
+    return <div className='radial-container' style={{ height: lastTransitionHeight - props.top}} />
   }
 
   const SFRadialDataPoints: [number, number][] = SFData.map((datum: HouseData, index) => {
@@ -195,81 +199,82 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const isAtLastPhase = phaseIndex >= props.transitionHeights.length
   
   const plotPosition =  isAtLastPhase ? 'relative' : 'fixed'
-  const lastTransitionHeight = props.transitionHeights[props.transitionHeights.length - 1]
 
   const plotTop = isAtLastPhase ? lastTransitionHeight - (props.height * 2) : 0
 
   return (
-    <div className={props.class || ''} style={{
-      height: props.height,
-      width: props.width,
-      position: plotPosition,
-      top: plotTop,
-      opacity: initialOpacity
-    }}>
-      <svg width={width} height={height}>
-        <pattern id="NYdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
-          <path d="M-1,1 l2,-2
-            M0,4 l4,-4
-            M3,5 l2,-2" 
-            style={{ stroke: 'green', strokeWidth: 1}} />
-        </pattern>
-        <pattern id="SFdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
-          <path d="M-1,1 l2,-2
-            M0,4 l4,-4
-            M3,5 l2,-2" 
-            style={{ stroke: 'blue', strokeWidth: 1}} />
-        </pattern>
-        <path d={finalNYArea} fill="url(#NYdiagonalHatch)" opacity={Math.min(0.2, backgroundColorsOpacity)} />
-        <path d={finalSFArea} fill="url(#SFdiagonalHatch)"  opacity={Math.min(0.2, backgroundColorsOpacity)} />
-        {
-          SFRadialDataPoints.map((point: [number, number], index) => {
-            const cx = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[0] : point[0]
-            const cy = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[1] : point[1]
-            return <circle
-                      key={`${index}`}
-                      cx={cx}
-                      cy={cy}
-                      r={5}
-                      fillOpacity={0.2}
-                      fill={'blue'}
-                      className={`${SFData[index].elevation} elev`}
-                    />
-          })
-        }
-        {
-          NYRadialDataPoints.map((point: [number, number], index) => {
-            const cx = useInterpolatedPositions ? pointsInterpolatersNY[index](dataPointsPositionPercentage)[0] : point[0]
-            const cy = useInterpolatedPositions ? pointsInterpolatersNY[index](dataPointsPositionPercentage)[1] : point[1]
-            return <circle
-                      key={`${index}`}
-                      cx={cx}
-                      cy={cy}
-                      r={5}
-                      fillOpacity={0.2}
-                      fill={'green'}
-                    />
-          })
-        }
-        {
-          alternativePaths.map((path, index) => {
-            return (
-              <path
-                d={path}
-                key={index}
-                fill="transparent"
-                stroke="darkGrey"
-                strokeWidth={3}
-                strokeOpacity={alternatePathsPositionPercentage}
-              />
-            )
-          })
-        }
-        <path d={movingPath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
-        <g style={{ opacity: staticCircleOpacity }}>
-          <StaticCirlces scale={scaleRadial} width={width} height={height} radiusValues={[20, 40, 60, 80]} />
-        </g>
-      </svg>
+    <div className='radial-container' style={{ height: lastTransitionHeight - props.top}} >
+      <div className={props.class || ''} style={{
+        height: props.height,
+        width: props.width,
+        position: "sticky",
+        top: 0,
+        opacity: initialOpacity
+      }}>
+        <svg width={width} height={height}>
+          <pattern id="NYdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
+            <path d="M-1,1 l2,-2
+              M0,4 l4,-4
+              M3,5 l2,-2" 
+              style={{ stroke: 'green', strokeWidth: 1}} />
+          </pattern>
+          <pattern id="SFdiagonalHatch" patternUnits="userSpaceOnUse" width="14" height="14" viewBox="0 0 4 4">
+            <path d="M-1,1 l2,-2
+              M0,4 l4,-4
+              M3,5 l2,-2" 
+              style={{ stroke: 'blue', strokeWidth: 1}} />
+          </pattern>
+          <path d={finalNYArea} fill="url(#NYdiagonalHatch)" opacity={Math.min(0.2, backgroundColorsOpacity)} />
+          <path d={finalSFArea} fill="url(#SFdiagonalHatch)"  opacity={Math.min(0.2, backgroundColorsOpacity)} />
+          {
+            SFRadialDataPoints.map((point: [number, number], index) => {
+              const cx = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[0] : point[0]
+              const cy = useInterpolatedPositions ? pointsInterpolatersSF[index](dataPointsPositionPercentage)[1] : point[1]
+              return <circle
+                        key={`${index}`}
+                        cx={cx}
+                        cy={cy}
+                        r={5}
+                        fillOpacity={0.2}
+                        fill={'blue'}
+                        className={`${SFData[index].elevation} elev`}
+                      />
+            })
+          }
+          {
+            NYRadialDataPoints.map((point: [number, number], index) => {
+              const cx = useInterpolatedPositions ? pointsInterpolatersNY[index](dataPointsPositionPercentage)[0] : point[0]
+              const cy = useInterpolatedPositions ? pointsInterpolatersNY[index](dataPointsPositionPercentage)[1] : point[1]
+              return <circle
+                        key={`${index}`}
+                        cx={cx}
+                        cy={cy}
+                        r={5}
+                        fillOpacity={0.2}
+                        fill={'green'}
+                      />
+            })
+          }
+          {
+            alternativePaths.map((path, index) => {
+              return (
+                <path
+                  d={path}
+                  key={index}
+                  fill="transparent"
+                  stroke="darkGrey"
+                  strokeWidth={3}
+                  strokeOpacity={alternatePathsPositionPercentage}
+                />
+              )
+            })
+          }
+          <path d={movingPath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
+          <g style={{ opacity: staticCircleOpacity }}>
+            <StaticCirlces scale={scaleRadial} width={width} height={height} radiusValues={[20, 40, 60, 80]} />
+          </g>
+        </svg>
+      </div>
     </div>
   )
 }
