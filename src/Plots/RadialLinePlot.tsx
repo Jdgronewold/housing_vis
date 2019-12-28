@@ -96,6 +96,8 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const { SFData, NYData } = splitData(data);
   const { transitionPhase: { phaseIndex, phasePercentage } } = useTransitionPhase(props.transitionHeights)
 
+  const lastTransitionHeight = props.transitionHeights[props.transitionHeights.length - 1]
+
   const xMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.xDataKey]) as [number, number]
   const yMinAndMax= d3.extent(props.data, (datum: HouseData) => datum[props.yDataKey]) as [number, number]
 
@@ -105,27 +107,9 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const minMax = d3.extent(data, (data: HouseData) => data[xDataKey]);
   const scaleRadial = d3.scaleLinear().domain(minMax).range([0, width/2]);
   const radiusPercentage = phaseIndex < 3 ? 0 : phaseIndex === 3 ? phasePercentage : 1
-
-  const interpolation = (houseData: HouseData[]) => {
-    return houseData.map((datum: HouseData, index) => {
-      const angle = (index / (houseData.length / 2)) * Math.PI; 
-      const xRadial = (scaleRadial(datum[xDataKey]) * Math.cos(angle)) + (width/2);
-      const yRadial = (scaleRadial(datum[xDataKey]) * Math.sin(angle)) + (height/2);
-
-      const xLinear = xScale(datum[props.xDataKey])
-      const yLinear = yScale(datum[props.yDataKey])
-
-      return d3.interpolate([xRadial, yRadial], [xLinear, yLinear])
-    })
-  }
-
-  const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [interpolation, SFData])
-  const pointsInterpolatersNY = useMemo(() => interpolation(NYData), [interpolation, NYData])
   
   const pathGenerator = d3.line().curve(d3.curveCardinal);
   
-  const sigmoidPath = useMemo(() => pathGenerator(generateSigmoid(props.width, props.height - 10, props.sigmoidWeights, 100)),
-  [props.width, props.height, props.sigmoidWeights])
 
   const NYAreaGenerator = d3.area()
                           .x((d) => d[0])
@@ -141,30 +125,56 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const finalNYArea = NYAreaGenerator(sigmoidPoints)
   const finalSFArea = SFAreaGenerator(sigmoidPoints)
 
-  const offsetArray = [400, 330, 270, 220, 180, 150, 50, 20, -20, -70, -130, -200]
-  const alternateSigmoids: string[] = useMemo(() => {
-    return generateMultipleSigmoids(props.width, props.height - 10, props.sigmoidWeights, offsetArray).map((pathPoints) => {
-      return pathGenerator(pathPoints)
-    })
-  }, [props.width, props.height, props.sigmoidWeights])
-  
+  // ______________________________________________________________________________________________________________
+  // Generate red circle to sigmoid path
   const radiusPath = useMemo(() => pathGenerator(generateRadialPoints([40], scaleRadial, width, height)[0]), [width, scaleRadial])
+  const sigmoidPath = useMemo(() => pathGenerator(generateSigmoid(props.width, props.height - 10, props.sigmoidWeights, 100)),
+  [props.width, props.height, props.sigmoidWeights])
 
   const finalTweenedPathPathGenerator = useMemo(() => {
     return pathTween(radiusPath, sigmoidPath, 4)
   }, [])
 
+  const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
+  const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
+
+  // ________________________________________________________________________________________________________________
+  // Generate alternate sigmoid paths
+  const offsetArray = [400, 330, 270, 220, 180, 150, 50, 20, -20, -70, -130, -200]
+
+  const alternateSigmoids: string[] = useMemo(() => {
+    return generateMultipleSigmoids(props.width, props.height - 10, props.sigmoidWeights, offsetArray).map((pathPoints) => {
+      return pathGenerator(pathPoints)
+    })
+  }, [props.width, props.height, props.sigmoidWeights])
+
   const alternateTweenedPathsGenerator = useMemo(() => {
     return alternateSigmoids.map((path: string) => pathTween(sigmoidPath, path, 2))
   }, [])
 
-  const lastTransitionHeight = props.transitionHeights[props.transitionHeights.length - 1]
+  const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
+  const alternativePaths = alternateTweenedPathsGenerator.map((altPathGenerator) => altPathGenerator(alternatePathsPositionPercentage))
 
+  // ________________________________________________________________________________________________________________
+  // create SF and NY data points and their interpolators
 
-  if (phaseIndex === 0) {
-    return <div className='radial-container' style={{ height: lastTransitionHeight - props.top}} />
+  const useInterpolatedPositions = phaseIndex > 3 // used to know if we should be transitioning to x and y values instead of radial
+
+  // returns interpolators that turns data points from x and y to radial positions
+  const interpolation = (houseData: HouseData[]) => {
+    return houseData.map((datum: HouseData, index) => {
+      const angle = (index / (houseData.length / 2)) * Math.PI; 
+      const xRadial = (scaleRadial(datum[xDataKey]) * Math.cos(angle)) + (width/2);
+      const yRadial = (scaleRadial(datum[xDataKey]) * Math.sin(angle)) + (height/2);
+
+      const xLinear = xScale(datum[props.xDataKey])
+      const yLinear = yScale(datum[props.yDataKey])
+
+      return d3.interpolate([xRadial, yRadial], [xLinear, yLinear])
+    })
   }
 
+  const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [interpolation, SFData])
   const SFRadialDataPoints: [number, number][] = SFData.map((datum: HouseData, index) => {
     const angle = (index / (SFData.length / 2)) * Math.PI; 
     const x = (scaleRadial(datum[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
@@ -172,6 +182,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return [x, y]
   })
 
+  const pointsInterpolatersNY = useMemo(() => interpolation(NYData), [interpolation, NYData])
   const NYRadialDataPoints: [number, number][] = NYData.map((data: HouseData, index) => {
     const angle = (index / (NYData.length / 2)) * Math.PI; 
     const x = (scaleRadial(data[xDataKey]) * Math.cos(angle) * radiusPercentage) + (width/2); // Calculate the x position of the element.
@@ -179,22 +190,21 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return [x, y]
   })
 
-  const staticCirclesTransform = phaseIndex === 4 ?
-   1 - phasePercentage * 2 :
-    phaseIndex < 4 ? 1 : 0
+  // ________________________________________________________________________________________________________________
+
+  if (phaseIndex === 0) {
+    // bail early if we don't need to paint anything - has to happen after useMemo though
+    return <div className='radial-container' style={{ height: lastTransitionHeight - props.top}} />
+  }
+
+
+  const staticCirclesTransform = phaseIndex === 4 ? 1 - phasePercentage * 2 : phaseIndex < 4 ? 1 : 0
   
   const staticCircleOpacity = staticCirclesTransform
 
-  const useInterpolatedPositions = phaseIndex > 3
-  const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
   const backgroundColorsOpacity = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : phaseIndex === 6 ? 0.2 - (phasePercentage * 0.2)  : 0
-  const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
 
   const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
-
-  const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
-
-  const alternativePaths = alternateTweenedPathsGenerator.map((pathGenerator) => pathGenerator(alternatePathsPositionPercentage))
 
   const isAtLastPhase = phaseIndex >= props.transitionHeights.length
   

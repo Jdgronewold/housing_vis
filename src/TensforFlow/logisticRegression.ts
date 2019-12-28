@@ -33,7 +33,7 @@ export class LogisticRegression {
     const currentGuesses = features.matMul(this.weights).sigmoid();
     const differences = currentGuesses.sub(labels);
 
-    // this is what we get when we take the derivative of the SUM(guesses - actual) with respect to both b and m
+    // this is what we get when we take the derivative of the SUM(guesses - actual) with respect to both b and m/of the cross entropy equation
     const slopes = features
       .transpose()
       .matMul(differences)
@@ -119,10 +119,12 @@ export class LogisticRegression {
   }
 
   recordCost() {
+    // uses cross entropy way, which more or less is the SUM(actual * log(guess) + (1- actual)*log(1- guess))
     const guesses = this.features.matMul(this.weights).sigmoid();
 
     const termOne = this.labels.transpose().matMul(guesses.log());
 
+    
     const termTwo = this.labels
       .mul(-1)
       .add(1)
