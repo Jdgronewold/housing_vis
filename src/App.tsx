@@ -40,6 +40,7 @@ const App: React.FC = () => {
       {/* <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
       <RadialLinePlot
         sigmoidWeights={Array.from(test.getWeights().dataSync<"int32">())}
+        costValues={test.costHistory}
         data={housingData}
         yDataKey={"in_sf"}
         xDataKey={"elevation"}
@@ -48,7 +49,7 @@ const App: React.FC = () => {
         top={7500}
         transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000].map( transition => transition + height)}
       />
-      <CostHistoryPlot costValues={test.costHistory} height={height} width={600} top={16000} />
+      {/* <CostHistoryPlot costValues={test.costHistory} height={height} width={600} top={16000} /> */}
     </div>
   );
 }

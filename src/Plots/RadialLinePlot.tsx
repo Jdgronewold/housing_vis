@@ -10,6 +10,7 @@ interface RadialPlotProps extends GenericPlotProps {
   transitionHeights: number[]
   sigmoidWeights: number[]
   top: number
+  costValues: number[]
 }
 
 function generateSigmoid(width: number, height: number, weights: number[], widthOffset: number): [number, number][] {
@@ -137,6 +138,24 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
   const movingPath = finalTweenedPathPathGenerator(dataPointsPositionPercentage)
+
+  // Do the bit for the transition to a dot
+  const yMinAndMaxCost = d3.extent(props.costValues)
+  const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([10, width - 20])
+  const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([10, width - 20])
+
+  const lastCostPointArray: [number, number][] = Array(100).fill([xCostScale(0), yCostScale(yMinAndMaxCost[1])])
+  const singlePointPath = useMemo(() => pathGenerator(lastCostPointArray), [lastCostPointArray])
+
+  const stageThreePositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
+
+  const stageThreeTweenedPathGenerator = useMemo(() => {
+    return pathTween(movingPath, singlePointPath, 4)
+  }, [movingPath])
+
+  const finalRedCirclePath = stageThreeTweenedPathGenerator(stageThreePositionPercentage)
+  // final path needs to be a circle and we'll need to add fill -> generate circles similar to what is done here
+  // http://bl.ocks.org/jsl6906/cb75852db532cee284ed
 
   // ________________________________________________________________________________________________________________
   // Generate alternate sigmoid paths
@@ -279,7 +298,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
               )
             })
           }
-          <path d={movingPath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
+          <path d={finalRedCirclePath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
           <g style={{ opacity: staticCircleOpacity }}>
             <StaticCirlces scale={scaleRadial} width={width} height={height} radiusValues={[20, 40, 60, 80]} />
           </g>
