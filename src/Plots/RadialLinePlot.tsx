@@ -13,6 +13,14 @@ interface RadialPlotProps extends GenericPlotProps {
   costValues: number[]
 }
 
+function generateCircle(cx: number, cy: number): string {
+  const radius = 2
+  return "M" + cx + "," + cy + " " +
+    "m" + -radius + ", 0 " +
+    "a" + radius + "," + radius + " 0 1,0 " + radius*2  + ",0 " +
+    "a" + radius + "," + radius + " 0 1,0 " + -radius*2 + ",0Z";
+}
+
 function generateSigmoid(width: number, height: number, weights: number[], widthOffset: number): [number, number][] {
   
   const pointsArray = []
@@ -144,13 +152,15 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([10, width - 20])
   const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([10, width - 20])
 
-  const lastCostPointArray: [number, number][] = Array(100).fill([xCostScale(0), yCostScale(yMinAndMaxCost[1])])
-  const singlePointPath = useMemo(() => pathGenerator(lastCostPointArray), [lastCostPointArray])
+  // const lastCostPointArray: [number, number][] = Array(100).fill([xCostScale(0), yCostScale(yMinAndMaxCost[1])])
+  // const singlePointPath = useMemo(() => pathGenerator(lastCostPointArray), [lastCostPointArray])
 
-  const stageThreePositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
+  const stageThreePositionPercentage = phaseIndex < 7 ? 0 : phaseIndex === 7 ? phasePercentage : 1
+
+  const circlePath = generateCircle(xCostScale(0), yCostScale(yMinAndMaxCost[1]))
 
   const stageThreeTweenedPathGenerator = useMemo(() => {
-    return pathTween(movingPath, singlePointPath, 4)
+    return pathTween(movingPath, circlePath, 4)
   }, [movingPath])
 
   const finalRedCirclePath = stageThreeTweenedPathGenerator(stageThreePositionPercentage)
