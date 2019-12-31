@@ -152,10 +152,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([10, width - 20])
   const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([10, width - 20])
 
-  // const lastCostPointArray: [number, number][] = Array(100).fill([xCostScale(0), yCostScale(yMinAndMaxCost[1])])
-  // const singlePointPath = useMemo(() => pathGenerator(lastCostPointArray), [lastCostPointArray])
-
-  const stageThreePositionPercentage = phaseIndex < 7 ? 0 : phaseIndex === 7 ? phasePercentage : 1
+  const stageThreePositionPercentage = phaseIndex < 8 ? 0 : phaseIndex === 8 ? phasePercentage : 1
 
   const circlePath = generateCircle(xCostScale(0), yCostScale(yMinAndMaxCost[1]))
 
@@ -164,8 +161,6 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   }, [movingPath])
 
   const finalRedCirclePath = stageThreeTweenedPathGenerator(stageThreePositionPercentage)
-  // final path needs to be a circle and we'll need to add fill -> generate circles similar to what is done here
-  // http://bl.ocks.org/jsl6906/cb75852db532cee284ed
 
   // ________________________________________________________________________________________________________________
   // Generate alternate sigmoid paths
@@ -181,8 +176,26 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return alternateSigmoids.map((path: string) => pathTween(sigmoidPath, path, 2))
   }, [])
 
-  const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 1
+  const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 0
   const alternativePaths = alternateTweenedPathsGenerator.map((altPathGenerator) => altPathGenerator(alternatePathsPositionPercentage))
+
+  const costConversionIndex = Math.floor(props.costValues.length / offsetArray.length)
+  const greyCirclePaths = useMemo(() => {
+      return offsetArray.map((_, index) => {
+      const costArrayIndex = Math.min( props.costValues.length - 1, props.costValues.length -  (index * costConversionIndex))
+      const xValue = xCostScale(costArrayIndex)
+      const yValue = yCostScale(props.costValues[costArrayIndex])
+      return generateCircle(xValue, yValue)
+    })
+  }, [])
+
+
+  const finalAlternatePathsGenerator = useMemo(() => {
+    return alternateSigmoids.map((altPath: string, index: number) => pathTween(altPath, greyCirclePaths[index], 4))
+  }, [])
+
+  const finalAlternatePathsOpacity = phaseIndex < 7 ? 0 : 1
+  const finalAlternatePaths = finalAlternatePathsGenerator.map((finalAltPathGenerator) => finalAltPathGenerator(stageThreePositionPercentage))
 
   // ________________________________________________________________________________________________________________
   // create SF and NY data points and their interpolators
@@ -234,12 +247,6 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const backgroundColorsOpacity = phaseIndex < 5 ? 0 : phaseIndex === 5 ? phasePercentage : phaseIndex === 6 ? 0.2 - (phasePercentage * 0.2)  : 0
 
   const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
-
-  const isAtLastPhase = phaseIndex >= props.transitionHeights.length
-  
-  const plotPosition =  isAtLastPhase ? 'relative' : 'fixed'
-
-  const plotTop = isAtLastPhase ? lastTransitionHeight - (props.height * 2) : 0
 
   return (
     <div className='radial-container' style={{ height: lastTransitionHeight - props.top}} >
@@ -304,6 +311,20 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
                   stroke="darkGrey"
                   strokeWidth={3}
                   strokeOpacity={alternatePathsPositionPercentage}
+                />
+              )
+            })
+          }
+          {
+            finalAlternatePaths.map((path, index) => {
+              return (
+                <path
+                  d={path}
+                  key={index}
+                  fill="transparent"
+                  stroke="darkGrey"
+                  strokeWidth={3}
+                  strokeOpacity={finalAlternatePathsOpacity}
                 />
               )
             })

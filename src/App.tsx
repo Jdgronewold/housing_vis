@@ -47,7 +47,7 @@ const App: React.FC = () => {
         width={600}
         height={height}
         top={7500}
-        transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000].map( transition => transition + height)}
+        transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
       />
       {/* <CostHistoryPlot costValues={test.costHistory} height={height} width={600} top={16000} /> */}
     </div>
