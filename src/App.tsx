@@ -2,11 +2,10 @@ import React from 'react';
 
 import { SmallScatterPlot } from './Plots/smallScatterPlot'
 import { InitialVariablePlot } from './Plots/InitialVariablePlot'
-import { housingData, HouseData } from './data'
+import { housingData } from './data'
 import { processData } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
-import { CostHistoryPlot } from './Plots/costHistoryPlot'
 
 import './App.css'
 

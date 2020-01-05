@@ -149,8 +149,8 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   // Do the bit for the transition to a dot
   const yMinAndMaxCost = d3.extent(props.costValues)
-  const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([10, width - 20])
-  const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([10, width - 20])
+  const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([30, width - 30])
+  const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([30, width - 30])
 
   const stageThreePositionPercentage = phaseIndex < 8 ? 0 : phaseIndex === 8 ? phasePercentage : 1
 
@@ -232,7 +232,11 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return [x, y]
   })
 
+  const pointOpacity = phaseIndex < 6 ? 0.2 : phaseIndex === 6 ? 0.2 - (phasePercentage * 0.2)  : 0
+
   // ________________________________________________________________________________________________________________
+
+  const axisArrowOpacity = phaseIndex < 8 ? 0 : phaseIndex === 8 ? phasePercentage  : 1
 
   if (phaseIndex === 0) {
     // bail early if we don't need to paint anything - has to happen after useMemo though
@@ -270,6 +274,19 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
               M3,5 l2,-2" 
               style={{ stroke: 'blue', strokeWidth: 1}} />
           </pattern>
+          <defs>
+            <marker id="arrow"
+              viewBox="0 -5 10 10"
+              refX={0}
+              refY={0}
+              markerWidth={4}
+              markerHeight={4}
+              orient="auto"
+              opacity={axisArrowOpacity}
+            >
+              <path d="M0,-5L10,0L0,5" />
+            </marker>
+          </defs>
           <path d={finalNYArea} fill="url(#NYdiagonalHatch)" opacity={Math.min(0.2, backgroundColorsOpacity)} />
           <path d={finalSFArea} fill="url(#SFdiagonalHatch)"  opacity={Math.min(0.2, backgroundColorsOpacity)} />
           {
@@ -281,7 +298,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
                         cx={cx}
                         cy={cy}
                         r={5}
-                        fillOpacity={0.2}
+                        fillOpacity={pointOpacity}
                         fill={'blue'}
                         className={`${SFData[index].elevation} elev`}
                       />
@@ -296,7 +313,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
                         cx={cx}
                         cy={cy}
                         r={5}
-                        fillOpacity={0.2}
+                        fillOpacity={pointOpacity}
                         fill={'green'}
                       />
             })
@@ -330,6 +347,44 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
             })
           }
           <path d={finalRedCirclePath} fill="transparent" stroke="rgb(255,0,0)" strokeWidth={useInterpolatedPositions ? 3 : 1} />
+          <line
+            x1={(width -30) / 2 - 30}
+            x2={(width -30) / 2 + 120}
+            y1={height - 20}
+            y2={height - 20}
+            strokeOpacity={axisArrowOpacity}
+            markerEnd="url(#arrow)"
+            strokeWidth={2.5}
+            stroke="black"
+          />
+          <text
+            x={(width -30) / 2 + 45}
+            y={height}
+            textAnchor="middle"
+            opacity={axisArrowOpacity}
+          >
+            Iterations
+          </text>
+          <line
+            x1={30}
+            x2={30}
+            y1={(height - 30) / 2 - 30}
+            y2={(height -30) / 2 + 120}
+            strokeOpacity={axisArrowOpacity}
+            markerEnd="url(#arrow)"
+            rotate="90deg"
+            strokeWidth={2.5}
+            stroke="black"
+          />
+          <text
+            x={15}
+            y={(height - 30) / 2 + 45}
+            textAnchor="middle"
+            opacity={axisArrowOpacity}
+            style={{ writingMode: "vertical-rl" }}
+          >
+            Cost
+          </text>
           <g style={{ opacity: staticCircleOpacity }}>
             <StaticCirlces scale={scaleRadial} width={width} height={height} radiusValues={[20, 40, 60, 80]} />
           </g>
