@@ -203,7 +203,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const useInterpolatedPositions = phaseIndex > 3 // used to know if we should be transitioning to x and y values instead of radial
 
   // returns interpolators that turns data points from x and y to radial positions
-  const interpolation = (houseData: HouseData[]) => {
+  const interpolation = useMemo(() => (houseData: HouseData[]) => {
     return houseData.map((datum: HouseData, index) => {
       const angle = (index / (houseData.length / 2)) * Math.PI; 
       const xRadial = (scaleRadial(datum[xDataKey]) * Math.cos(angle)) + (width/2);
@@ -214,7 +214,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
       return d3.interpolate([xRadial, yRadial], [xLinear, yLinear])
     })
-  }
+  }, [])
 
   const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [interpolation, SFData])
   const SFRadialDataPoints: [number, number][] = SFData.map((datum: HouseData, index) => {

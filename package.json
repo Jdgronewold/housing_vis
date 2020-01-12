@@ -17,6 +17,8 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.88.2",
     "shuffle-seed": "^1.1.6",
     "typescript": "3.6.2"
   },

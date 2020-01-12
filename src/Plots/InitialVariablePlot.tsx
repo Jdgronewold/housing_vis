@@ -3,7 +3,6 @@ import * as d3 from 'd3'
 
 import { HouseData } from '../data'
 import { useTransitionPhase } from '../Utils/scrollTransitionWrapper'
-import { relative } from 'path'
 
 interface InitialVariablePlotProps {
   data: HouseData[]
@@ -167,12 +166,8 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
               .attr('opacity', boxOpacity)
           })
     }
-  }, [transitionPhase, scrollTop, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
+  }, [transitionPhase, lastTransitionHeight, scrollTop, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
 
-  const isAtLastPhase = transitionPhase.phaseIndex >= props.transitionHeights.length
-  
-  const plotPosition =  isAtLastPhase ? 'relative' : 'fixed'
-  const plotTop = isAtLastPhase ? lastTransitionHeight - props.height : 0
   return (
     <div className='bar-container' style={{ height: (lastTransitionHeight - props.top + props.height)}}>
       <div style={{

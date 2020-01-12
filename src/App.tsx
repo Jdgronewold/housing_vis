@@ -6,6 +6,7 @@ import { housingData } from './data'
 import { processData } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
+import { CustomModelPlot } from './Plots/customModel'
 
 import './App.css'
 
@@ -48,6 +49,7 @@ const App: React.FC = () => {
         top={7500}
         transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
       />
+      <CustomModelPlot height={800} data={housingData} />
       {/* <CostHistoryPlot costValues={test.costHistory} height={height} width={600} top={16000} /> */}
     </div>
   );
