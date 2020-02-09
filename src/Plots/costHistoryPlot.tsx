@@ -10,7 +10,6 @@ interface CostHistoryProps {
 }
 
 export const CostHistoryPlot: React.FC<CostHistoryProps> = (props: CostHistoryProps) => {
-  console.log('in child', props.costValues);
   
   const width = props.width ? props.width : 100
   const height = props.height ? props.height : 100
