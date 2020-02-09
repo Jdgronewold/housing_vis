@@ -29,6 +29,23 @@ export class LogisticRegression {
     this.weights = tf.zeros([this.features.shape[1], 1]);
   }
 
+  public resetCostHistoryAndWeights() {
+    this.costHistory = [];
+    this.weights = tf.zeros([this.features.shape[1], 1]);
+  }
+
+  public setFeaturesAndLabels(features: number[][], labels: number[][]) {
+    this.features = this.processFeatures(features);
+    this.labels = tf.tensor(labels);
+  }
+
+  public setRegressionOptions(options: RegressionOptions) {
+    this.options = {
+      ...{ learningRate: 0.1, iterations: 10, decisionBoundary: 0.5, batchSize: 20 },
+      ...options
+    };
+  }
+
   public gradientDescent(features, labels) {
     const currentGuesses = features.matMul(this.weights).sigmoid();
     const differences = currentGuesses.sub(labels);

@@ -1,0 +1,29 @@
+.custom-model {
+  margin-top: 50px;
+}
+
+.custom-model-parameters {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.custom-model-label {
+  margin-left: 14px;
+}
+
+.custom-model-top {
+  display: flex;
+  flex-direction: row;
+  height: 75%;
+}
+
+.custom-model-run {
+  margin-left: 14px;
+  width: 200px;
+}
+
+.ui {
+  margin: 14px;
+  max-width: 300px;
+}

@@ -9,6 +9,7 @@ import { RadialLinePlot } from './Plots/RadialLinePlot'
 import { CustomModelPlot } from './Plots/customModel'
 
 import './App.css'
+import './Plots/plots.css'
 
 const { features, labels, testFeatures, testLabels } = processData(housingData, {
   labelColumns: ['in_sf'],
@@ -16,12 +17,14 @@ const { features, labels, testFeatures, testLabels } = processData(housingData, 
   splitTest: 100,
   shuffle: true
 })
+const initialDefaults = { batchSize: 20, iterations: 70, learningRate: 0.05 }
+export { features, labels, initialDefaults }
 
-const test = new LogisticRegression(features, labels, { batchSize: 20, iterations: 70, learningRate: 0.05 })
-test.train();
-const percentageRight = test.test(testFeatures, testLabels)
+const logisticModel = new LogisticRegression(features, labels, initialDefaults)
+logisticModel.train();
+const percentageRight = logisticModel.test(testFeatures, testLabels)
 console.log('precentage right = ', percentageRight * 100, "%");
-console.log(test.costHistory);
+console.log(logisticModel.costHistory);
 
 
 const App: React.FC = () => {
@@ -39,8 +42,8 @@ const App: React.FC = () => {
         />
       {/* <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
       <RadialLinePlot
-        sigmoidWeights={Array.from(test.getWeights().dataSync<"int32">())}
-        costValues={test.costHistory}
+        sigmoidWeights={Array.from(logisticModel.getWeights().dataSync<"int32">())}
+        costValues={logisticModel.costHistory}
         data={housingData}
         yDataKey={"in_sf"}
         xDataKey={"elevation"}
@@ -49,8 +52,12 @@ const App: React.FC = () => {
         top={7500}
         transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
       />
-      <CustomModelPlot height={800} data={housingData} />
-      {/* <CostHistoryPlot costValues={test.costHistory} height={height} width={600} top={16000} /> */}
+      <CustomModelPlot
+        height={800}
+        width={600}
+        data={housingData}
+        logisticModel={logisticModel}
+        />
     </div>
   );
 }
