@@ -1,18 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { Dropdown, Input, DropdownProps, Button, Icon, Dimmer, Loader, Segment } from 'semantic-ui-react'
 
-import { LogisticRegression } from '../TensforFlow/logisticRegression'
-import { processData } from '../Utils/process_data'
+import { LogisticRegression, PredictionResults } from '../TensforFlow/logisticRegression'
+import { processData, HousingSums, TrainedResults } from '../Utils/process_data'
 import { housingData, HouseData } from '../data'
 import { CostHistoryPlot } from './costHistoryPlot'
-
-
+import { processTrainedResults } from '../Utils/process_data'
+import { PiePlot } from './piePlot'
 
 interface CustomModelProps {
   height: number
   width: number
   data: HouseData[]
   logisticModel: LogisticRegression
+  initialCorrectPercentage: number
+  trainedResults: TrainedResults
 }
 
 const options = [
@@ -27,67 +29,62 @@ const options = [
 
 export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelProps) => {
 
-  const [iterations, setIterations] = useState<number>(10)
-  const [batchSize, setBatchSize] = useState<number>(20)
-  const [learningRate, setLearningRate] = useState<number>(0.1)
+  const [iterations, setIterations] = useState<string>('40')
+  const [batchSize, setBatchSize] = useState<string>('20')
+  const [learningRate, setLearningRate] = useState<string>('0.05')
   const [features, setFeatures] = useState<(keyof HouseData)[]>(['elevation'])
   const [isTraining, setTraining] = useState<boolean>(false)
   const [costHistory, setCostHistory] = useState<number[]>(props.logisticModel.costHistory)
+  const [errors, setErrors] = useState<string[]>([])
+  const [percentageCorrect, setPercentageCorrect] = useState<number>(props.initialCorrectPercentage)
+  const [pieData, setPieData] = useState<TrainedResults>(props.trainedResults)
 
   let iterationsText = 'Iterations - 1 to 100'
-  let learningRateText = 'Learning Rate - 0 to 1'
+  let learningRateText = 'Learning Rate - 0 to 5'
   let batchSizeText = 'Batch Size - 1 to 50'
 
   useEffect(() => {
     if (isTraining) {
       const featureNames = features
-      const { features: featuresProcessed, labels } = processData(housingData, {
+      debugger
+      const { features: featuresProcessed, labels, testFeatures, testLabels } = processData(housingData, {
         labelColumns: ['in_sf'],
         dataColumns: featureNames,
         splitTest: 100,
         shuffle: true
       })
+      
   
-      const logisticModel = new LogisticRegression(featuresProcessed, labels, { batchSize, learningRate, iterations })
+      const logisticModel = new LogisticRegression(
+        featuresProcessed,
+        labels,
+        { batchSize: parseInt(batchSize), learningRate: parseFloat(learningRate), iterations: parseInt(iterations) }
+      )
+
       logisticModel.train()
-      console.log('ran model');
-      console.log(logisticModel.costHistory);
+
+      const predictionResults: PredictionResults = logisticModel.test(testFeatures, testLabels)
+      
+      const processedResults = processTrainedResults(predictionResults.predictions, testLabels)
+      console.log(processedResults);
+      
+      setPieData(processedResults)
+      setPercentageCorrect(predictionResults.percentageCorrect)
       setCostHistory(logisticModel.costHistory)
       setTraining(false)
     }
   }, [isTraining])
 
   const iterationsInputHandler = (event: React.ChangeEvent, data: { value: string }) => {
-    const value = parseInt(data.value)
-    if (isNaN(value) || value < 1 || value > 100) {
-
-      iterationsText = 'Iteration value must be between 1 and 100'
-      setIterations(isNaN(value) ? undefined : value)
-    } else {
-      setIterations(value)
-    }
+    setIterations(data.value)
   }
 
   const batchSizeInputHandler = (event: React.ChangeEvent, data: { value: string }) => {
-    const value = parseInt(data.value)
-    if (isNaN(value) || value < 1 || value > 50) {
-
-      batchSizeText = 'Batch size must be between 1 and 50'
-      setBatchSize(isNaN(value) ? undefined : value)
-    } else {
-      setBatchSize(value)
-    }
+    setBatchSize(data.value)
   }
 
   const learningRateInputHandler = (event: React.ChangeEvent, data: { value: string }) => {
-    const value = parseInt(data.value)
-    if (isNaN(value) || value < 0 || value > 1) {
-
-      learningRateText = 'Learning rate must be between 0 and 1'
-      setLearningRate(isNaN(value) ? undefined : value)
-    } else {
-      setLearningRate(value)
-    }
+    setLearningRate(data.value)
   }
 
   function featuresInputHandler(event: React.SyntheticEvent, data: DropdownProps) {
@@ -95,8 +92,46 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
   }
 
   const runModel = () => {
-    setTraining(true)
+    const errors: string[] = []
+    const iterationsNumber = parseInt(iterations)
+    const batchSizeNumber = parseInt(batchSize)
+    const learningRateNumber = parseFloat(learningRate)
+
+    if (!Number.isInteger(iterationsNumber) || iterationsNumber < 1 || iterationsNumber > 100) {
+      errors.push('Iterations must be between 1 and 100')
+    }
+
+    if (!Number.isInteger(batchSizeNumber) || batchSizeNumber < 1 || batchSizeNumber > 50) {
+      errors.push('Batch Size must be between 1 and 50')
+    }
+
+    if (!Number.isFinite(learningRateNumber) || learningRateNumber < 0 || learningRateNumber > 5) {
+      errors.push('Learning Rate must be between 0 and 5')
+    }
+
+    if (errors.length) {
+      setErrors(errors)
+    } else {
+      setErrors([])
+      setTraining(true)
+    }
   }
+
+  const pieDataSF = useMemo(() => {
+    return ['positiveSF', 'negativeSF'].map(key => {
+      const value = pieData.sums[key]
+      const label = (key === 'positiveSF') ? `Correctly predicted SF homes - ${value}` : `Incorrectly predicted NY homes - ${value}`
+      return { name: key, value, label }
+    })
+  }, [pieData])
+
+  const pieDataNY = useMemo(() => {
+    return ['positiveNY', 'negativeNY'].map(key => {
+      const value = pieData.sums[key]
+      const label = (key === 'positiveNY') ? `Correctly predicted NY homes - ${value}` : `Incorrectly predicted SF homes - ${value}`
+      return { name: key, value, label }
+    })
+  }, [pieData])
 
   const costHistoryPlot = useMemo(() => {
     return (
@@ -105,13 +140,16 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
   }, [costHistory])
   
   return (
-    <Segment>
+    <Segment className="custom-model-wrapper">
       <Dimmer active={isTraining} inverted>
-        <Loader>Trainging Model</Loader>
+        <Loader>Training Model</Loader>
       </Dimmer>
       <div style={{ height: props.height, width: '100vw' }} className={'custom-model'}>
         <div className="custom-model-top">
           <div className="custom-model-parameters">
+            <div className="custom-model-prediction">
+              { `Current model predicts ${percentageCorrect * 100}% of the houses correctly`}
+            </div>
             <div className="custom-model-label">
               {'Features'}
             </div>
@@ -131,6 +169,7 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
               onChange={batchSizeInputHandler}
               value={batchSize}
               placeholder='Batch Size...'
+              type="number"
             />
             <div className="custom-model-label">
               {iterationsText}
@@ -139,6 +178,7 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
               value={iterations}
               placeholder='Iterations...'
               onChange={iterationsInputHandler}
+              type="number"
             />
             <div className="custom-model-label">
               {learningRateText}
@@ -147,7 +187,19 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
               placeholder='Learning Rate...'
               value={learningRate}
               onChange={learningRateInputHandler}
+              type="number"
             />
+            <div className="custom-model-errors">
+              {
+                errors.map((error: string) => {
+                  return (
+                    <div key={error}>
+                      { error }
+                    </div>
+                  )
+                })
+              }
+            </div>
             <div className="custom-model-run">
               <Button icon labelPosition='right' onClick={runModel}>
                   Run Model
@@ -156,6 +208,10 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
             </div>
           </div>
           { costHistoryPlot }
+        </div>
+        <div className="custom-model-bottom">
+          <PiePlot data={pieDataSF} pieOuterRadius={100} width={300} height={300}/>
+          <PiePlot data={pieDataNY} pieOuterRadius={100} width={300} height={300}/>
         </div>
       </div>
     </Segment>

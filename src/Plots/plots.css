@@ -15,7 +15,13 @@
 .custom-model-top {
   display: flex;
   flex-direction: row;
-  height: 75%;
+}
+
+.custom-model-bottom {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
 }
 
 .custom-model-run {
@@ -23,7 +29,23 @@
   width: 200px;
 }
 
+.custom-model-errors {
+  color: red;
+  margin-left: 14px;
+  margin-top: 4px;
+}
+
 .custom-model-top .ui {
   margin: 14px;
   max-width: 300px;
+}
+
+.custom-model-prediction {
+  margin: 14px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.custom-model-wrapper {
+  border: none !important;
 }

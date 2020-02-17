@@ -7,6 +7,12 @@ interface RegressionOptions {
   decisionBoundary?: number
   batchSize?: number
 }
+
+export interface PredictionResults {
+  percentageCorrect: number
+  predictions: number[]
+}
+
 export class LogisticRegression {
   private features: tf.Tensor
   private labels: tf.Tensor
@@ -105,17 +111,20 @@ export class LogisticRegression {
     return this.weights
   }
 
-  public test(testFeatures, testLabels) {
+  public test(testFeatures, testLabels): PredictionResults {
     const predictions = this.predict(testFeatures);
     testLabels = tf.tensor(testLabels);
-
+    
     const incorrect = predictions
       .sub(testLabels)
       .abs()
       .sum()
-      .dataSync<"int32">()[0];
+      .dataSync<"int32">()[0];      
       
-    return (predictions.shape[0] - incorrect) / predictions.shape[0];
+    return {
+      percentageCorrect: (predictions.shape[0] - incorrect) / predictions.shape[0],
+      predictions: (predictions.dataSync<"int32">() as unknown) as number[]
+    };
   }
 
   recordCost() {

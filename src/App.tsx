@@ -3,7 +3,7 @@ import React from 'react';
 import { SmallScatterPlot } from './Plots/smallScatterPlot'
 import { InitialVariablePlot } from './Plots/InitialVariablePlot'
 import { housingData } from './data'
-import { processData } from './Utils/process_data'
+import { processData, processTrainedResults } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
 import { CustomModelPlot } from './Plots/customModel'
@@ -17,18 +17,18 @@ const { features, labels, testFeatures, testLabels } = processData(housingData, 
   splitTest: 100,
   shuffle: true
 })
-const initialDefaults = { batchSize: 20, iterations: 70, learningRate: 0.05 }
+const initialDefaults = { batchSize: 20, iterations: 40, learningRate: 0.05 }
 export { features, labels, initialDefaults }
 
 const logisticModel = new LogisticRegression(features, labels, initialDefaults)
 logisticModel.train();
-const percentageRight = logisticModel.test(testFeatures, testLabels)
-console.log('precentage right = ', percentageRight * 100, "%");
-console.log(logisticModel.costHistory);
+const predictionResults = logisticModel.test(testFeatures, testLabels)
+const trainedResults = processTrainedResults(predictionResults.predictions, testLabels)
+console.log('precentage right = ', predictionResults.percentageCorrect * 100, "%");
 
 
 const App: React.FC = () => {
-  const height = Math.max(document.body.getBoundingClientRect().height, 800)
+  const height = Math.max(document.body.getBoundingClientRect().height - 100, 800)
   return (
     <div className="App" style={{ height: 25000 }}>
       
@@ -57,6 +57,8 @@ const App: React.FC = () => {
         width={600}
         data={housingData}
         logisticModel={logisticModel}
+        initialCorrectPercentage={predictionResults.percentageCorrect}
+        trainedResults={trainedResults}
         />
     </div>
   );
