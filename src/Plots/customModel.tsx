@@ -120,7 +120,7 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
   const pieDataSF = useMemo(() => {
     return ['positiveSF', 'negativeSF'].map(key => {
       const value = pieData.sums[key]
-      const label = (key === 'positiveSF') ? `Correctly predicted SF homes - ${value}` : `Incorrectly predicted NY homes - ${value}`
+      const label = (key === 'positiveSF') ? `Correctly predicted SF homes: ` : `Incorrectly predicted NY homes: `
       return { name: key, value, label }
     })
   }, [pieData])
@@ -128,7 +128,7 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
   const pieDataNY = useMemo(() => {
     return ['positiveNY', 'negativeNY'].map(key => {
       const value = pieData.sums[key]
-      const label = (key === 'positiveNY') ? `Correctly predicted NY homes - ${value}` : `Incorrectly predicted SF homes - ${value}`
+      const label = (key === 'positiveNY') ? `Correctly predicted NY homes: ` : `Incorrectly predicted SF homes: `
       return { name: key, value, label }
     })
   }, [pieData])

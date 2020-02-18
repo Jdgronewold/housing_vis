@@ -45,7 +45,7 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
       .attr('transform', `translate(${props.width/2}, ${props.height/2})`)
 
       const arcs = createPie(props.data)
-      console.log(arcs);
+
       const prevArcs = createPie(cache.current);
 
       const arcTween = (d, i) => {
@@ -53,6 +53,18 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
 
         return t => createArc(interpolator(t));
       };
+      const textTween = (d, i, nodes) => {
+      
+        console.log(d);
+        console.log(cache.current[i].value);
+        console.log(d.data.value);
+        
+        
+        debugger
+        const interpolator = d3.interpolate(cache.current[i].value, d.data.value);
+
+        return t => d3.select(nodes[i]).text(d.data.label + interpolator(t));
+      }
 
       containerElement
         .selectAll('g')
@@ -69,7 +81,7 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
                       .call(enter => enter.transition().attrTween("d", arcTween))
                     },
               (update) => {
-                return update.call(enter => enter.transition().attrTween("d", arcTween))
+                return update.call(update => update.transition().attrTween("d", arcTween))
               })
 
       containerElement.selectAll('text')
@@ -79,11 +91,14 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
               .style('text-anchor', 'middle')
               .style('alignment-baseline', 'middle')
               .style('font-size', '16px')
-              .attr('transform', (d, i) => `translate(0, ${15 + props.pieOuterRadius + 20 * i})`)
-              .append('tspan')        
+              .attr('transform', (d, i) => `translate(0, ${15 + props.pieOuterRadius + 20 * i})`)        
               .style('font-weight', 'bold')
-              .text(d => `${d.data.label}`)
-          })
+              .call(enter => enter.transition().tween("text", textTween))
+          },
+          (update) => {
+            return update.call(update => update.transition().tween("text", textTween))
+          }
+          )
           
       cache.current = props.data
     }
