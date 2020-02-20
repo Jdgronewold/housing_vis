@@ -149,8 +149,8 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   // Do the bit for the transition to a dot
   const yMinAndMaxCost = d3.extent(props.costValues)
-  const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([30, width - 30])
-  const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([30, width - 30])
+  const xCostScale = d3.scaleLinear().domain([props.costValues.length, 0]).range([60, width - 30])
+  const yCostScale = d3.scaleLinear().domain(yMinAndMaxCost.reverse()).range([30, height - 60])
 
   const stageThreePositionPercentage = phaseIndex < 8 ? 0 : phaseIndex === 8 ? phasePercentage : 1
 
@@ -164,7 +164,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   // ________________________________________________________________________________________________________________
   // Generate alternate sigmoid paths
-  const offsetArray = [400, 330, 270, 220, 180, 150, 50, 20, -20, -70, -130, -200]
+  const offsetArray = [360, 300, 270, 220, 180, 150, 50, 20, -20, -70, -130, -180]
 
   const alternateSigmoids: string[] = useMemo(() => {
     return generateMultipleSigmoids(props.width, props.height - 10, props.sigmoidWeights, offsetArray).map((pathPoints) => {

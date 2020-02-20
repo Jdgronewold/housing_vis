@@ -54,13 +54,6 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
         return t => createArc(interpolator(t));
       };
       const textTween = (d, i, nodes) => {
-      
-        console.log(d);
-        console.log(cache.current[i].value);
-        console.log(d.data.value);
-        
-        
-        debugger
         const interpolator = d3.interpolate(cache.current[i].value, d.data.value);
 
         return t => d3.select(nodes[i]).text(d.data.label + interpolator(t));

@@ -29,6 +29,7 @@ console.log('precentage right = ', predictionResults.percentageCorrect * 100, "%
 
 const App: React.FC = () => {
   const height = Math.max(document.body.getBoundingClientRect().height - 100, 800)
+  const width = Math.max(document.body.getBoundingClientRect().width - 50, 800)/2
   return (
     <div className="App" style={{ height: 25000 }}>
       
@@ -37,24 +38,23 @@ const App: React.FC = () => {
         data={housingData}
         transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
         height={height}
-        width={600}
+        width={width}
         top={height}
         />
-      {/* <SmallScatterPlot data={housingData} yDataKey={"in_sf"} xDataKey={"elevation"} width={600} height={600} /> */}
       <RadialLinePlot
         sigmoidWeights={Array.from(logisticModel.getWeights().dataSync<"int32">())}
         costValues={logisticModel.costHistory}
         data={housingData}
         yDataKey={"in_sf"}
         xDataKey={"elevation"}
-        width={600}
+        width={width}
         height={height}
         top={7500}
         transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
       />
       <CustomModelPlot
         height={800}
-        width={600}
+        width={width}
         data={housingData}
         logisticModel={logisticModel}
         initialCorrectPercentage={predictionResults.percentageCorrect}
