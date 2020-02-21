@@ -36,7 +36,7 @@ const App: React.FC = () => {
       <RenderSmallPlots />
       <InitialVariablePlot
         data={housingData}
-        transitionHeights={[600, 1200, 3000, 5000, 7200, 7500]}
+        transitionHeights={[600, 1200, 2000, 3000, 4500, 6500, 8700, 9000]}
         height={height}
         width={width}
         top={height}
@@ -74,24 +74,29 @@ const RenderSmallPlots: React.FC = () => {
         <SmallScatterPlot data={housingData} yDataKey={"price"} xDataKey={"price_per_sqft"} />
         <SmallScatterPlot data={housingData} yDataKey={"price"} xDataKey={"elevation"} />
 
+        
         <SmallScatterPlot class={'first-graphic-row-2'} data={housingData} yDataKey={"elevation"} xDataKey={"year_built"} />
         <SmallScatterPlot data={housingData} yDataKey={"elevation"} xDataKey={"sqft"} />
         <SmallScatterPlot data={housingData} yDataKey={"elevation"} xDataKey={"beds"} />
         <SmallScatterPlot data={housingData} yDataKey={"elevation"} xDataKey={"bath"} />
         <SmallScatterPlot data={housingData} yDataKey={"elevation"} xDataKey={"price_per_sqft"} />
       
+        <div className={'first-graphic-row-3-text title-text'}> <span>My very poor</span> </div>
         <SmallScatterPlot class={'first-graphic-row-3'} data={housingData} yDataKey={"year_built"} xDataKey={"sqft"} />
         <SmallScatterPlot data={housingData} yDataKey={"year_built"} xDataKey={"beds"} />
         <SmallScatterPlot data={housingData} yDataKey={"year_built"} xDataKey={"bath"} />
         <SmallScatterPlot data={housingData} yDataKey={"year_built"} xDataKey={"price_per_sqft"} />
       
+        <div className={'first-graphic-row-4-text title-text'}> <span> explanation of logistic </span></div>
         <SmallScatterPlot class={'first-graphic-row-4'} data={housingData} yDataKey={"sqft"} xDataKey={"beds"} />
         <SmallScatterPlot data={housingData} yDataKey={"sqft"} xDataKey={"bath"} />
         <SmallScatterPlot data={housingData} yDataKey={"sqft"} xDataKey={"price_per_sqft"} />
       
+        <div className={'first-graphic-row-5-text title-text'}> <span>regression (and mostly an</span> </div>
         <SmallScatterPlot class={'first-graphic-row-5'} data={housingData} yDataKey={"beds"} xDataKey={"bath"} />
         <SmallScatterPlot data={housingData} yDataKey={"beds"} xDataKey={"price_per_sqft"} />
       
+        <div className={'first-graphic-row-6-text title-text'}> <span> excuse to relearn D3 for the 14th time)</span> </div>
         <SmallScatterPlot class={'first-graphic-row-6'} data={housingData} yDataKey={"bath"} xDataKey={"price_per_sqft"} />
       </div>
   )

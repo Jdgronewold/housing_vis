@@ -63,22 +63,22 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
       
       const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1
 
-      const percentageWidth = transitionPhase.phaseIndex === 2 ?
+      const percentageWidth = transitionPhase.phaseIndex === 3 ?
         transitionPhase.phasePercentage :
-        transitionPhase.phaseIndex > 2 ? 0 : 1
-      
-      const percentageX = transitionPhase.phaseIndex === 3 ?
+        transitionPhase.phaseIndex > 3 ? 0 : 1
+            
+      const percentageX = transitionPhase.phaseIndex === 4 ?
         transitionPhase.phasePercentage :
-        transitionPhase.phaseIndex > 3 ? 1 : 0
+        transitionPhase.phaseIndex > 4 ? 1 : 0
 
-      const roundedCorners = transitionPhase.phaseIndex >= 3 ? 6 : 0
+      const roundedCorners = transitionPhase.phaseIndex >= 4 ? 6 : 0
       
       const opacity = transitionPhase.phaseIndex < 1 ? 0 : 0.8
 
-      const boxOpacity = transitionPhase.phaseIndex > 3 ? 0.25 : 0
-      const boxSizePercentage = transitionPhase.phaseIndex === 4 ?
+      const boxOpacity = transitionPhase.phaseIndex > 4 ? 0.25 : 0
+      const boxSizePercentage = transitionPhase.phaseIndex === 5 ?
         transitionPhase.phasePercentage :
-        transitionPhase.phaseIndex > 4 ? 1 : 0
+        transitionPhase.phaseIndex > 5 ? 1 : 0
       
       
       containerElement.selectAll('g')
@@ -104,7 +104,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                           })
                           .select('rect')
                           .attr('width', (data: HouseData) => {
-                            if (transitionPhase.phaseIndex === 2) {
+                            if (transitionPhase.phaseIndex === 3) {
                               const calcPercentageWidth = determineTriangleWidth(data, percentageWidth)
                               const width = Math.min((calcPercentageWidth * (props.width - 30) / 2), (props.width - 30) / 2)                            
                               return Math.max(width, 6)
@@ -114,7 +114,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                           .attr('fill', (data: HouseData) => data.in_sf ? 'green' : 'blue')
                           .attr('opacity', (_, i) =>  i % 3 === 0 ? opacity : i % 2 ? opacity * 0.7 : opacity * 0.4 )
                           .attr('rx', (data: HouseData) => {
-                            if (transitionPhase.phaseIndex === 2) {
+                            if (transitionPhase.phaseIndex === 3) {
                               const calcPercentageWidth = determineTriangleWidth(data, percentageWidth)                             
                               const width = Math.max((calcPercentageWidth * (props.width - 30) / 2), 6)
                               if (width === 6) {
@@ -124,7 +124,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
                             return roundedCorners
                           })
                           .attr('ry', (data: HouseData) => {
-                            if (transitionPhase.phaseIndex === 2) {
+                            if (transitionPhase.phaseIndex === 3) {
                               const calcPercentageWidth = determineTriangleWidth(data, percentageWidth)                             
                               const width = Math.max((calcPercentageWidth * (props.width - 30) / 2), 6)
                               if (width === 6) {
@@ -169,7 +169,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
   }, [transitionPhase, lastTransitionHeight, scrollTop, props, elevationScale, sqFtSFScale, sqFtNYScale, svgRef, elevationMinMax, sqFtMinMax ])
 
   return (
-    <div className='bar-container' style={{ height: (lastTransitionHeight - props.top + props.height)}}>
+    <div className='bar-container' style={{ height: (lastTransitionHeight - props.top + props.height), width: props.width}}>
       <div style={{
         height: props.height,
         width: props.width,

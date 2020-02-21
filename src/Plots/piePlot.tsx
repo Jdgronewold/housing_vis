@@ -28,11 +28,6 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
       .innerRadius(0)
       .outerRadius(props.pieOuterRadius);
 
-    const createArcLabel = d3
-      .arc<any>()
-      .innerRadius(props.pieOuterRadius + 10)
-      .outerRadius(props.pieOuterRadius + 30);
-
 
   useEffect(() => {
     if (svgRef && svgRef.current) {

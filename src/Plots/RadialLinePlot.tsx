@@ -253,7 +253,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
   const initialOpacity = phaseIndex === 1 ? phasePercentage : phaseIndex < 2 ? 0 : 1
 
   return (
-    <div className='radial-container' style={{ height: lastTransitionHeight - props.top}} >
+    <div className='radial-container' style={{ height: lastTransitionHeight - props.top, width: props.width}} >
       <div className={props.class || ''} style={{
         height: props.height,
         width: props.width,
