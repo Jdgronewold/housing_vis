@@ -32,6 +32,7 @@ export const CostHistoryPlot: React.FC<CostHistoryProps> = (props: CostHistoryPr
         .attr('transform', 'translate(20, 0) rotate(90)')
         .call(d3.axisBottom(yScale).tickFormat(d3.format(".2f")))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.costValues, yMinAndMax])
 
   const createDataPoints = () => {

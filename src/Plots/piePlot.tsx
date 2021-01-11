@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
-import { arc } from 'd3';
+// import { arc } from 'd3';
 
 interface PieDataPoint {
   name: string
@@ -90,6 +90,7 @@ export const PiePlot: React.FC<PiePlotProps> = (props: PiePlotProps) => {
           
       cache.current = props.data
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.data, props.width, props.height])
 
   return (

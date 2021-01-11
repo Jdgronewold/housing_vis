@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { Dropdown, Input, DropdownProps, Button, Icon, Dimmer, Loader, Segment } from 'semantic-ui-react'
 
 import { LogisticRegression, PredictionResults } from '../TensforFlow/logisticRegression'
-import { processData, HousingSums, TrainedResults } from '../Utils/process_data'
+import { processData, TrainedResults } from '../Utils/process_data'
 import { housingData, HouseData } from '../data'
 import { CostHistoryPlot } from './costHistoryPlot'
 import { processTrainedResults } from '../Utils/process_data'
@@ -73,6 +73,7 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
       setCostHistory(logisticModel.costHistory)
       setTraining(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTraining])
 
   const iterationsInputHandler = (event: React.ChangeEvent, data: { value: string }) => {

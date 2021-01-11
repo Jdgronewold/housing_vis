@@ -136,12 +136,16 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   // ______________________________________________________________________________________________________________
   // Generate red circle to sigmoid path
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const radiusPath = useMemo(() => pathGenerator(generateRadialPoints([40], scaleRadial, width, height)[0]), [width, scaleRadial])
+  
   const sigmoidPath = useMemo(() => pathGenerator(generateSigmoid(props.width, props.height - 10, props.sigmoidWeights, 100)),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   [props.width, props.height, props.sigmoidWeights])
 
   const finalTweenedPathPathGenerator = useMemo(() => {
     return pathTween(radiusPath, sigmoidPath, 4)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const dataPointsPositionPercentage = phaseIndex < 4 ? 0 : phaseIndex === 4 ? phasePercentage : 1
@@ -158,6 +162,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
   const stageThreeTweenedPathGenerator = useMemo(() => {
     return pathTween(movingPath, circlePath, 4)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [movingPath])
 
   const finalRedCirclePath = stageThreeTweenedPathGenerator(stageThreePositionPercentage)
@@ -170,10 +175,12 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
     return generateMultipleSigmoids(props.width, props.height - 10, props.sigmoidWeights, offsetArray).map((pathPoints) => {
       return pathGenerator(pathPoints)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.width, props.height, props.sigmoidWeights])
 
   const alternateTweenedPathsGenerator = useMemo(() => {
     return alternateSigmoids.map((path: string) => pathTween(sigmoidPath, path, 2))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const alternatePathsPositionPercentage = phaseIndex < 6 ? 0 : phaseIndex === 6 ? phasePercentage : 0
@@ -187,11 +194,13 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
       const yValue = yCostScale(props.costValues[costArrayIndex])
       return generateCircle(xValue, yValue)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
 
   const finalAlternatePathsGenerator = useMemo(() => {
     return alternateSigmoids.map((altPath: string, index: number) => pathTween(altPath, greyCirclePaths[index], 4))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const finalAlternatePathsOpacity = phaseIndex < 7 ? 0 : 1
@@ -214,6 +223,7 @@ export const RadialLinePlot: React.FC<RadialPlotProps> = (props: RadialPlotProps
 
       return d3.interpolate([xRadial, yRadial], [xLinear, yLinear])
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const pointsInterpolatersSF = useMemo(() => interpolation(SFData), [interpolation, SFData])
