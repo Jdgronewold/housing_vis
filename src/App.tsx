@@ -7,6 +7,7 @@ import { processData, processTrainedResults } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
 import { CustomModelPlot } from './Plots/customModel'
+import { TextComponent } from './Text/TextComponent'
 
 import './App.css'
 import './Plots/plots.css'
@@ -17,7 +18,7 @@ const { features, labels, testFeatures, testLabels } = processData(housingData, 
   splitTest: 100,
   shuffle: true
 })
-const initialDefaults = { batchSize: 20, iterations: 40, learningRate: 0.05 }
+const initialDefaults = { batchSize: 20, iterations: 20, learningRate: 0.05 }
 export { features, labels, initialDefaults }
 
 const logisticModel = new LogisticRegression(features, labels, initialDefaults)
@@ -34,24 +35,48 @@ const App: React.FC = () => {
     <div className="App" style={{ height: 25000 }}>
       
       <RenderSmallPlots />
-      <InitialVariablePlot
-        data={housingData}
-        transitionHeights={[600, 1200, 2000, 3000, 4500, 6500, 8700, 9000]}
-        height={height}
-        width={width}
-        top={height}
+      <div style={{ position: 'relative' }}>
+        <InitialVariablePlot
+          data={housingData}
+          transitionHeights={[600, 1200, 2000, 3000, 4500, 6500, 8700, 9000]}
+          height={height}
+          width={width}
+          top={height}
         />
-      <RadialLinePlot
-        sigmoidWeights={Array.from(logisticModel.getWeights().dataSync<"int32">())}
-        costValues={logisticModel.costHistory}
-        data={housingData}
-        yDataKey={"in_sf"}
-        xDataKey={"elevation"}
-        width={width}
-        height={height}
-        top={7500}
-        transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
-      />
+        <TextComponent
+          textValues={['hello', "its meee", 'Some more text', 'boopee da poo', 'softy soft', 'wompppp']}
+          top={height}
+          transitionHeights={[200, 600, 1200, 2000, 3000, 4500, 8700, 9000]}
+          lastTransition={9000}
+          height={height}
+          width={width}
+          color='red'
+        />
+      </div>
+      <div style={{ position: 'relative' }}>
+        <RadialLinePlot
+            sigmoidWeights={Array.from(logisticModel.getWeights().dataSync<"int32">())}
+            costValues={logisticModel.costHistory}
+            data={housingData}
+            yDataKey={"in_sf"}
+            xDataKey={"elevation"}
+            width={width}
+            height={height}
+            top={7500}
+            transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
+        />
+        <TextComponent
+          textValues={['hello']}
+          top={7500}
+          lastTransition={2400 + height}
+          // lol don't do this in the future
+          transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
+          height={height}
+          width={width}
+          color='green'
+        />
+      </div>
+      
       <CustomModelPlot
         height={800}
         width={width}
