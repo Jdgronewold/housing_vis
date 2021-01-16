@@ -11,28 +11,30 @@ import { TextComponent } from './Text/TextComponent'
 
 import './App.css'
 import './Plots/plots.css'
+import { WorkerProvider } from './WebWorker/workerProvider';
 
-const { features, labels, testFeatures, testLabels } = processData(housingData, {
-  labelColumns: ['in_sf'],
-  dataColumns: ['elevation'],
-  splitTest: 100,
-  shuffle: true
-})
-const initialDefaults = { batchSize: 20, iterations: 20, learningRate: 0.05 }
-export { features, labels, initialDefaults }
+// const { features, labels, testFeatures, testLabels } = processData(housingData, {
+//   labelColumns: ['in_sf'],
+//   dataColumns: ['elevation'],
+//   splitTest: 100,
+//   shuffle: true
+// })
+// const initialDefaults = { batchSize: 20, iterations: 20, learningRate: 0.05 }
+// // export { features, labels, initialDefaults }
 
-const logisticModel = new LogisticRegression(features, labels, initialDefaults)
-logisticModel.train();
-const predictionResults = logisticModel.test(testFeatures, testLabels)
-const trainedResults = processTrainedResults(predictionResults.predictions, testLabels)
-console.log('precentage right = ', predictionResults.percentageCorrect * 100, "%");
+// const logisticModel = new LogisticRegression(features, labels, initialDefaults)
+// logisticModel.train();
+// const predictionResults = logisticModel.test(testFeatures, testLabels)
+// const trainedResults = processTrainedResults(predictionResults.predictions, testLabels)
+// console.log('precentage right = ', predictionResults.percentageCorrect * 100, "%");
 
 
 const App: React.FC = () => {
   const height = Math.max(document.body.getBoundingClientRect().height - 100, 800)
   const width = Math.max(document.body.getBoundingClientRect().width - 50, 800)/2
   return (
-    <div className="App" style={{ height: 25000 }}>
+    <WorkerProvider>
+      <div className="App" style={{ height: 25000 }}>
       
       <RenderSmallPlots />
       <div style={{ position: 'relative' }}>
@@ -54,7 +56,7 @@ const App: React.FC = () => {
         />
       </div>
       <div style={{ position: 'relative' }}>
-        <RadialLinePlot
+        {/* <RadialLinePlot
             sigmoidWeights={Array.from(logisticModel.getWeights().dataSync<"int32">())}
             costValues={logisticModel.costHistory}
             data={housingData}
@@ -64,7 +66,7 @@ const App: React.FC = () => {
             height={height}
             top={7500}
             transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
-        />
+        /> */}
         <TextComponent
           textValues={['hello']}
           top={7500}
@@ -76,16 +78,17 @@ const App: React.FC = () => {
           color='green'
         />
       </div>
-      
-      <CustomModelPlot
+    
+      {/* <CustomModelPlot
         height={800}
         width={width}
         data={housingData}
         logisticModel={logisticModel}
         initialCorrectPercentage={predictionResults.percentageCorrect}
         trainedResults={trainedResults}
-        />
-    </div>
+        /> */}
+      </div>
+    </WorkerProvider>
   );
 }
 

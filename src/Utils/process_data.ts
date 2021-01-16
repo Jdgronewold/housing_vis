@@ -38,7 +38,7 @@ export function extractColumns(data: HouseData[], columnNames: (keyof HouseData)
   })
 }
 
-interface ProcessDataParameters {
+export interface ProcessDataParameters {
   dataColumns?: (keyof HouseData)[]
   labelColumns?: (keyof HouseData)[]
   converters?: { [key: string]: Function }
@@ -107,8 +107,8 @@ export interface TrainedResults {
   sums: HousingSums
 }
 
-export function processTrainedResults(predictions: number[], correctFeatures: number[][]) {
-  const predictionArray = []
+export function processTrainedResults(predictions: number[], correctFeatures: number[][]): TrainedResults {
+  const predictionArray: HousingPredictions[] = []
   const sums: HousingSums = {
     positiveSF: 0,
     negativeSF: 0,

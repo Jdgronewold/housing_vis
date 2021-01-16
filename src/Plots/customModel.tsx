@@ -46,7 +46,6 @@ export const CustomModelPlot: React.FC<CustomModelProps> = (props: CustomModelPr
   useEffect(() => {
     if (isTraining) {
       const featureNames = features
-      debugger
       const { features: featuresProcessed, labels, testFeatures, testLabels } = processData(housingData, {
         labelColumns: ['in_sf'],
         dataColumns: featureNames,

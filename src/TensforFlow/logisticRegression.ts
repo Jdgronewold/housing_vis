@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs'
 import {} from 'lodash'
 
-interface RegressionOptions {
+export interface RegressionOptions {
   learningRate?: number
   iterations?: number
   decisionBoundary?: number
