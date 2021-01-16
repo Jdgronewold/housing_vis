@@ -1,0 +1,3 @@
+export const initialPlotText: string[] = [
+  'Logistic regression is, at the heart of it, a means of classification. In this example we are attempting to predict whether a house is located in either New York (blue data points) or San Francisco (green data points) given other qualifying data such as elevation, price per square foot, or number of bedrooms. In the figure on the left individual houses are plotted by their elevation.'
+]

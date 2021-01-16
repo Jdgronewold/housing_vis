@@ -17,6 +17,18 @@ interface InitialVariablePlotProps {
 // not matter because it re renders so much on scroll. And figure out how to do they whole determineTriangleWidth once instead of
 // tons of times
 
+interface Labels { elevation?: number, pcSqFt?: number, label: string }
+const dataLabels: Labels[] = [
+  {
+  elevation: 75,
+  label: '75 meters'
+  },
+  {
+    elevation: 240,
+    label: '240 meters'
+  }
+]
+
 export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: InitialVariablePlotProps) => {
   const svgRef = useRef(null)
   const elevationMinMax = d3.extent(props.data, (datum: HouseData) => datum.elevation) as [number, number]
@@ -56,12 +68,17 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         .select('g.box-container')
         .attr('class', 'box-container')
         .attr('transform', 'translate(25, 25)')
+
+      const dataLabelContainer = svgElement
+        .select('g.data-labels')
+        .attr('class', 'data-labels')
+        .attr('transform', 'translate(25, 25)')
       
       const removeData = scrollTop - lastTransitionHeight >= props.height + 200
 
       svgElement.attr('width', props.width).attr('height', props.height)
       
-      const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1
+      const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1      
 
       const percentageWidth = transitionPhase.phaseIndex === 3 ?
         transitionPhase.phasePercentage :
@@ -79,6 +96,25 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
       const boxSizePercentage = transitionPhase.phaseIndex === 5 ?
         transitionPhase.phasePercentage :
         transitionPhase.phaseIndex > 5 ? 1 : 0
+
+      dataLabelContainer.selectAll('g')
+        .data( removeData ? [] : dataLabels, (data: Labels) => data.label)
+        .join((enter) => {
+          return enter.append('g')
+                      .append('text')
+                      .text((data: Labels) => data.label) 
+        },
+        (update) => {
+          return update.attr('transform', (d: Labels) => {
+            const translateX = (props.width - 25) / 2
+
+            const translateY = (props.height - 25) - (elevationScale(d.elevation) * percentageY)
+
+            return `translate(${translateX}, ${translateY})`
+          })
+          .attr('opacity', () => opacity)
+        }
+        )
       
       
       containerElement.selectAll('g')
@@ -179,6 +215,7 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         <svg ref={svgRef}>
           <g></g>
           <g className="box-container"></g>
+          <g className="data-labels"></g>
         </svg>
       </div>
     </div>

@@ -27,8 +27,8 @@ export const TextComponent: React.FC<TextComponentProps> = ({
       top: 0,
       border: `1px solid ${color}`,
       height: lastTransition - top + height,
-      width: width,
-      left: width
+      width: width - 25,
+      left: width + 25
       }}>
         <div style={{ position: 'relative', height: '100%', width: '100%'}}>
           {
