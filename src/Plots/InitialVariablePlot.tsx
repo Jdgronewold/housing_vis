@@ -20,8 +20,8 @@ interface InitialVariablePlotProps {
 interface Labels { elevation?: number, pcSqFt?: number, label: string }
 const dataLabels: Labels[] = [
   {
-  elevation: 75,
-  label: '75 meters'
+  elevation: 77,
+  label: '73 meters'
   },
   {
     elevation: 240,

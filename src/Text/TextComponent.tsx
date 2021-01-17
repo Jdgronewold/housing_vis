@@ -33,8 +33,10 @@ export const TextComponent: React.FC<TextComponentProps> = ({
         <div style={{ position: 'relative', height: '100%', width: '100%'}}>
           {
             textValues.map((text, index) => {
-              const nextBreakpoint = (index + 1) > transitionHeights.length ? lastTransition + height : transitionHeights[index + 1]
+           
+              const nextBreakpoint = (index + 1) >= transitionHeights.length ? transitionHeights[index] + height : transitionHeights[index + 1]             
               const containerHeight = nextBreakpoint - transitionHeights[index] - 100
+              
               return (
                 <div
                   key={index}

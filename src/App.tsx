@@ -8,6 +8,7 @@ import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
 import { CustomModelPlot } from './Plots/customModel'
 import { TextComponent } from './Text/TextComponent'
+import { initialPlotText } from './Text/TextUtils'
 
 import './App.css'
 import './Plots/plots.css'
@@ -44,9 +45,9 @@ const App: React.FC = () => {
           top={height}
         />
         <TextComponent
-          textValues={['hello', "its meee", 'Some more text', 'boopee da poo', 'softy soft', 'wompppp']}
+          textValues={initialPlotText}
           top={height}
-          transitionHeights={[200, 1200, 1800, 2600, 3600, 5100, 8700, 9000]}
+          transitionHeights={[200, 2000, 5000, 7000]}
           lastTransition={9000}
           height={height}
           width={width}
