@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { SmallScatterPlot } from './Plots/smallScatterPlot'
 import { InitialVariablePlot } from './Plots/InitialVariablePlot'
-import { housingData, HouseData } from './data'
+import { housingData } from './data'
 import { processData, processTrainedResults } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
@@ -12,11 +12,6 @@ import { initialPlotText, radialPlotText } from './Text/TextUtils'
 
 import './App.css'
 import './Plots/plots.css'
-console.log(housingData.length);
-console.log(housingData.reduce((accum, data: HouseData) => {
-  return accum + data.in_sf
-}, 0))
-
 
 
 const { features, labels, testFeatures, testLabels } = processData(housingData, {
