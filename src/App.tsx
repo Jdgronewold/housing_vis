@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { SmallScatterPlot } from './Plots/smallScatterPlot'
 import { InitialVariablePlot } from './Plots/InitialVariablePlot'
-import { housingData } from './data'
+import { housingData, HouseData } from './data'
 import { processData, processTrainedResults } from './Utils/process_data'
 import { LogisticRegression } from './TensforFlow/logisticRegression'
 import { RadialLinePlot } from './Plots/RadialLinePlot'
 import { CustomModelPlot } from './Plots/customModel'
 import { TextComponent } from './Text/TextComponent'
+import { initialPlotText, radialPlotText } from './Text/TextUtils'
 
 import './App.css'
 import './Plots/plots.css'
+console.log(housingData.length);
+console.log(housingData.reduce((accum, data: HouseData) => {
+  return accum + data.in_sf
+}, 0))
+
+
 
 const { features, labels, testFeatures, testLabels } = processData(housingData, {
   labelColumns: ['in_sf'],
@@ -31,6 +38,24 @@ console.log('precentage right = ', predictionResults.percentageCorrect * 100, "%
 const App: React.FC = () => {
   const height = Math.max(document.body.getBoundingClientRect().height - 100, 800)
   const width = Math.max(document.body.getBoundingClientRect().width - 50, 800)/2
+
+  const radialLineTransitions = useMemo(() => {
+    return [7500, 8000, 8001, 9500, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)
+  }, [height])
+
+  const radialLineTextTransitions = useMemo(() => {
+    // return [7500, 8000, 8001, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)
+    return [-400, 1000, 5000, 10000, 15000].map( transition => transition + height)
+  }, [height])
+
+  const variablePlotTransisitions = useMemo(() => {
+    return [600, 1200, 2000, 3000, 4500, 6500, 8700, 9000]
+  }, [])
+
+  const variablePlotTextTransisitions = useMemo(() => {
+    return [200, 2000, 5000, 7000]
+  }, [])
+
   return (
     <div className="App" style={{ height: 25000 }}>
       
@@ -38,19 +63,18 @@ const App: React.FC = () => {
       <div style={{ position: 'relative' }}>
         <InitialVariablePlot
           data={housingData}
-          transitionHeights={[600, 1200, 2000, 3000, 4500, 6500, 8700, 9000]}
+          transitionHeights={variablePlotTransisitions}
           height={height}
           width={width}
           top={height}
         />
         <TextComponent
-          textValues={['hello', "its meee", 'Some more text', 'boopee da poo', 'softy soft', 'wompppp']}
+          textValues={initialPlotText}
           top={height}
-          transitionHeights={[200, 600, 1200, 2000, 3000, 4500, 8700, 9000]}
+          transitionHeights={variablePlotTextTransisitions}
           lastTransition={9000}
           height={height}
           width={width}
-          color='red'
         />
       </div>
       <div style={{ position: 'relative' }}>
@@ -63,17 +87,15 @@ const App: React.FC = () => {
             width={width}
             height={height}
             top={7500}
-            transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
+            transitionHeights={radialLineTransitions}
         />
         <TextComponent
-          textValues={['hello']}
+          textValues={radialPlotText}
           top={7500}
-          lastTransition={2400 + height}
-          // lol don't do this in the future
-          transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
+          lastTransition={24000 + height}
+          transitionHeights={radialLineTextTransitions}
           height={height}
           width={width}
-          color='green'
         />
       </div>
       

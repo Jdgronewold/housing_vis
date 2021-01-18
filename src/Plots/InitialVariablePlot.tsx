@@ -17,6 +17,32 @@ interface InitialVariablePlotProps {
 // not matter because it re renders so much on scroll. And figure out how to do they whole determineTriangleWidth once instead of
 // tons of times
 
+interface ElevationLabels { elevation: number, label: string }
+const elevationLabels: ElevationLabels[] = [
+  {
+  elevation: 77,
+  label: '73 meters'
+  },
+  {
+    elevation: 240,
+    label: '240 meters'
+  }
+]
+
+interface PlotLables { label: string, elevation: number, priceSqFt: number }
+const plotLables: PlotLables[] = [
+  {
+    elevation: 60,
+    label: '<--- Elevation',
+    priceSqFt: 370
+  },
+  {
+    elevation: 0,
+    label: 'Price Per Square Foot --->',
+    priceSqFt: 1800
+  },
+]
+
 export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: InitialVariablePlotProps) => {
   const svgRef = useRef(null)
   const elevationMinMax = d3.extent(props.data, (datum: HouseData) => datum.elevation) as [number, number]
@@ -56,12 +82,22 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         .select('g.box-container')
         .attr('class', 'box-container')
         .attr('transform', 'translate(25, 25)')
+
+      const elevationLabelContainer = svgElement
+        .select('g.elevation-labels')
+        .attr('class', 'elevation-labels')
+        .attr('transform', 'translate(25, 25)')
+
+      const plotLabelContainer = svgElement
+        .select('g.plot-labels')
+        .attr('class', 'plot-labels')
+        .attr('transform', 'translate(25, 25)')
       
       const removeData = scrollTop - lastTransitionHeight >= props.height + 200
 
       svgElement.attr('width', props.width).attr('height', props.height)
       
-      const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1
+      const percentageY = transitionPhase.phaseIndex === 1 ? transitionPhase.phasePercentage : 1      
 
       const percentageWidth = transitionPhase.phaseIndex === 3 ?
         transitionPhase.phasePercentage :
@@ -79,6 +115,44 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
       const boxSizePercentage = transitionPhase.phaseIndex === 5 ?
         transitionPhase.phasePercentage :
         transitionPhase.phaseIndex > 5 ? 1 : 0
+
+      elevationLabelContainer.selectAll('g')
+        .data( removeData ? [] : elevationLabels, (data: ElevationLabels) => data.label)
+        .join((enter) => {
+          return enter.append('g')
+                      .append('text')
+                      .text((data: ElevationLabels) => data.label) 
+        },
+        (update) => {
+          return update.attr('transform', (d: ElevationLabels) => {
+            const translateX = (props.width - 25) / 2
+
+            const translateY = (props.height - 25) - (elevationScale(d.elevation) * percentageY)
+
+            return `translate(${translateX}, ${translateY})`
+          })
+          .attr('opacity', () => transitionPhase.phaseIndex === 3 ? 1 - percentageWidth : transitionPhase.phaseIndex > 3 ? 0: opacity)
+        }
+      )
+
+      plotLabelContainer.selectAll('g')
+        .data( removeData ? [] : plotLables, (data: PlotLables) => data.label)
+        .join((enter) => {
+          return enter.append('g')
+                      .append('text')
+                      .text((data: PlotLables) => data.label) 
+        },
+        (update) => {
+          return update.attr('transform', (d: PlotLables) => {
+            const translateX = sqFtNYScale(d.priceSqFt)
+
+            const translateY = (props.height - 25) - (elevationScale(d.elevation) * percentageY)
+            
+            return `translate(${translateX}, ${translateY})` + (d.label === '<--- Elevation' ? ' rotate(90)' : '')
+          })
+          .attr('opacity', () => transitionPhase.phaseIndex === 4 ? percentageX : transitionPhase.phaseIndex > 4 ? 1 : 0)
+        }
+      )
       
       
       containerElement.selectAll('g')
@@ -179,6 +253,8 @@ export const InitialVariablePlot: React.FC<InitialVariablePlotProps> = (props: I
         <svg ref={svgRef}>
           <g></g>
           <g className="box-container"></g>
+          <g className="elevation-labels"></g>
+          <g className="plot-labels"></g>
         </svg>
       </div>
     </div>
