@@ -7,7 +7,6 @@ interface TextComponentProps {
   lastTransition: number
   height?: number
   width: number
-  color: string
   top: number
 }
 
@@ -17,7 +16,6 @@ export const TextComponent: React.FC<TextComponentProps> = ({
   lastTransition,
   height,
   width,
-  color,
   top
 }: TextComponentProps) => {
 
@@ -25,7 +23,6 @@ export const TextComponent: React.FC<TextComponentProps> = ({
     <div style={{
       position: 'absolute',
       top: 0,
-      border: `1px solid ${color}`,
       height: lastTransition - top + height,
       width: width - 25,
       left: width + 25

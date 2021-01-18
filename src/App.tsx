@@ -51,7 +51,6 @@ const App: React.FC = () => {
           lastTransition={9000}
           height={height}
           width={width}
-          color='red'
         />
       </div>
       <div style={{ position: 'relative' }}>
@@ -64,17 +63,16 @@ const App: React.FC = () => {
             width={width}
             height={height}
             top={7500}
-            transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
+            transitionHeights={[7500, 7800, 7850, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
         />
         <TextComponent
           textValues={['hello']}
           top={7500}
-          lastTransition={2400 + height}
+          lastTransition={24000 + height}
           // lol don't do this in the future
-          transitionHeights={[7500, 7800, 7801, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
+          transitionHeights={[7500, 8000, 8001, 9000, 12800, 14000, 16000, 18000, 22000, 24000].map( transition => transition + height)}
           height={height}
           width={width}
-          color='green'
         />
       </div>
       
